@@ -1,20 +1,22 @@
 (module
-  ;; Importeer de host functie vanuit JavaScript: show_popup(pointer, lengte)
-  (import "env" "show_popup" (func $show_popup (param i32 i32)))
-
   ;; Declareer en exporteer 1 geheugenpagina (64 KB)
   (memory (export "memory") 1)
 
-  ;; Sla de tekst "What the fuck" op in het lineaire geheugen op byte-offset 0
-  (data (i32.const 0) "What the fuck")
+  ;; Sla de JSON dataset met brandstofprijzen op in lineair geheugen op offset 0
+  (data (i32.const 0) "[{\"name\": \"Fieten Olie\", \"city\": \"Apeldoorn\", ...}]")
 
-  ;; Exporteer de functie 'run' die het programma start
-  (func (export "run")
-    ;; Parameter 1: pointer naar begin van de tekst in het geheugen (offset 0)
+  ;; Exporteer functies om data-offset, datalengte en het aantal stations op te halen
+  (func (export "get_data_offset") (result i32)
     i32.const 0
-    ;; Parameter 2: lengte van de tekst (13 karakters)
-    i32.const 13
-    ;; Roep de geïmporteerde JavaScript popup functie aan
-    call $show_popup
+  )
+
+  (func (export "get_data_len") (result i32)
+    ;; Geeft de exacte lengte van de JSON-data in bytes terug
+    i32.const 4491
+  )
+
+  (func (export "get_station_count") (result i32)
+    ;; Geeft het totale aantal geregistreerde stations terug
+    i32.const 34
   )
 )

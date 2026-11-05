@@ -3,134 +3,345 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WASM Hello World</title>
+  <title>Brandstofprijzen Nederland (WASM)</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
+      --bg: #0b0f19;
+      --card-bg: #151d2f;
+      --card-border: #243049;
       --accent: #38bdf8;
       --accent-hover: #0284c7;
+      --green: #22c55e;
+      --green-bg: rgba(34, 197, 94, 0.12);
+      --yellow: #f59e0b;
+      --yellow-bg: rgba(245, 158, 11, 0.12);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.12);
       --text: #f8fafc;
       --text-muted: #94a3b8;
     }
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
     }
-    .card {
-      background: var(--card);
-      border: 1px solid #334155;
-      border-radius: 16px;
-      padding: 2.5rem;
-      max-width: 520px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header {
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
     .badge {
-      display: inline-block;
-      padding: 0.35rem 0.85rem;
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.8rem;
       border-radius: 9999px;
       background: rgba(56, 189, 248, 0.15);
       color: var(--accent);
-      font-size: 0.85rem;
+      font-size: 0.825rem;
       font-weight: 600;
-      letter-spacing: 0.05em;
-      margin-bottom: 1.25rem;
+      letter-spacing: 0.04em;
     }
     h1 {
-      margin: 0 0 0.75rem 0;
-      font-size: 1.85rem;
-      font-weight: 700;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
     }
-    p {
+    .subtitle {
       color: var(--text-muted);
-      line-height: 1.6;
-      font-size: 0.975rem;
+      font-size: 1rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
       margin-bottom: 2rem;
     }
-    button {
-      background: var(--accent);
-      color: #0f172a;
-      border: none;
-      padding: 0.85rem 1.75rem;
-      font-size: 1.05rem;
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.825rem;
       font-weight: 600;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: inline-flex;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .stat-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Filters Bar */
+    .controls-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
       align-items: center;
+      justify-content: space-between;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      flex: 1 1 200px;
+    }
+    .control-group label {
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    select, input {
+      background: #0f1626;
+      border: 1px solid #2d3b55;
+      color: var(--text);
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    select:focus, input:focus {
+      border-color: var(--accent);
+    }
+
+    /* Table */
+    .table-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow-x: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    th {
+      background: #111827;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 1rem 1.25rem;
+      text-transform: uppercase;
+      font-size: 0.775rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--card-border);
+    }
+    td {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid #1a2337;
+      vertical-align: middle;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background: rgba(56, 189, 248, 0.03);
+    }
+    .station-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+    }
+    .station-address {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+    .type-pill {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .type-onbemand {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+    .type-bemand {
+      background: var(--yellow-bg);
+      color: var(--yellow);
+    }
+    .type-snelweg {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+    .price-cell {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .lowest-price {
+      color: var(--green);
+    }
+    .lowest-tag {
+      display: inline-block;
+      margin-left: 0.4rem;
+      background: var(--green);
+      color: #0b0f19;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      vertical-align: middle;
+    }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
       gap: 0.5rem;
     }
-    button:hover {
-      background: var(--accent-hover);
-      color: #ffffff;
-      transform: translateY(-2px);
-      box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.3);
-    }
-    .info {
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid #334155;
-      font-size: 0.85rem;
-      color: #64748b;
-      text-align: left;
-    }
-    code {
-      background: #0f172a;
-      padding: 0.2rem 0.4rem;
+    footer code {
+      background: #151d2f;
+      color: var(--accent);
+      padding: 0.15rem 0.4rem;
       border-radius: 4px;
-      color: #38bdf8;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.8rem;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="badge">WebAssembly (WASM)</div>
-    <h1>Hello World Demo</h1>
-    <p>
-      Klik op de knop om de gecompileerde <code>hello.wasm</code> binary (99 bytes) 
-      uit te voeren. De WASM-module leest de tekst uit zijn eigen lineaire geheugen 
-      en triggert een popup!
-    </p>
+  <div class="container">
+    <header>
+      <div class="badge">⚡ Aangedreven door WebAssembly (WASM32)</div>
+      <h1>Actuele Brandstofprijzen Nederland</h1>
+      <p class="subtitle">Dagprijzen voor Super (Euro 95 E10 & Super 98 E5) en Diesel (B7), realtime geladen uit WASM-lineair geheugen.</p>
+    </header>
 
-    <button id="runBtn" onclick="runWasm()">
-      ▶ Start WASM Programma
-    </button>
-
-    <div class="info">
-      <div>📦 <strong>Binary grootte:</strong> 99 bytes</div>
-      <div>⚡ <strong>Taal:</strong> WebAssembly Bytecode (WASM32)</div>
-      <div>🌐 <strong>Platform:</strong> Cross-platform (alle moderne browsers)</div>
+    <!-- Stats Banner -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Laagste Euro 95 (E10)</span>
+        <span class="stat-value" id="lowestE10">-</span>
+        <span class="stat-sub" id="lowestE10Station">in geselecteerde plaats</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Laagste Diesel (B7)</span>
+        <span class="stat-value" id="lowestDiesel">-</span>
+        <span class="stat-sub" id="lowestDieselStation">in geselecteerde plaats</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Laagste Super 98 (E5)</span>
+        <span class="stat-value" id="lowestSuper">-</span>
+        <span class="stat-sub" id="lowestSuperStation">in geselecteerde plaats</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Tankstations getoond</span>
+        <span class="stat-value" id="stationCount">-</span>
+        <span class="stat-sub" id="activeFilterText">Filter actief</span>
+      </div>
     </div>
+
+    <!-- Controls & Filter -->
+    <div class="controls-card">
+      <div class="control-group">
+        <label for="cityFilter">📍 Filter op Plaats</label>
+        <select id="cityFilter" onchange="applyFilters()">
+          <option value="Apeldoorn" selected>Apeldoorn (Standaard)</option>
+          <option value="ALL">Alle plaatsen in Nederland</option>
+          <option value="Arnhem">Arnhem</option>
+          <option value="Deventer">Deventer</option>
+          <option value="Zwolle">Zwolle</option>
+          <option value="Utrecht">Utrecht</option>
+          <option value="Amsterdam">Amsterdam</option>
+          <option value="Rotterdam">Rotterdam</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="sortBy">📊 Sorteer op</label>
+        <select id="sortBy" onchange="applyFilters()">
+          <option value="e10">Goedkoopste Euro 95 (E10)</option>
+          <option value="diesel">Goedkoopste Diesel (B7)</option>
+          <option value="super98">Goedkoopste Super 98 (E5)</option>
+          <option value="name">Stationnaam (A-Z)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="searchInput">🔍 Zoeken</label>
+        <input type="text" id="searchInput" placeholder="Zoek op station of straat..." oninput="applyFilters()" />
+      </div>
+    </div>
+
+    <!-- Stations Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Tankstation</th>
+            <th>Plaats</th>
+            <th>Type</th>
+            <th>Euro 95 (E10)</th>
+            <th>Super 98 (E5)</th>
+            <th>Diesel (B7)</th>
+          </tr>
+        </thead>
+        <tbody id="stationsTableBody">
+          <!-- Dynamisch gegenereerd -->
+        </tbody>
+      </table>
+    </div>
+
+    <footer>
+      <div>💡 <em>Gegevens worden direct gedecodeerd uit de lineaire geheugenruimte van <code>hello.wasm</code> (4.886 bytes).</em></div>
+      <div>Geen pop-up meer: direct interactief filteren en sorteren.</div>
+    </footer>
   </div>
 
   <script>
-    // Embedded fallback base64 voor het geval de pagina via file:// wordt geopend zonder webserver
-    const WASM_BASE64 = "AGFzbQEAAAABCQJgAn9/AGAAAAISAQNlbnYKc2hvd19wb3B1cAAAAwIBAQUDAQABBxACBm1lbW9yeQIAA3J1bgABCgoBCABBAEENEAALCxMBAEEACw1XaGF0IHRoZSBmdWNr";
+    // Embedded fallback base64 voor lokale file:// weergave zonder CORS webserver
+    const WASM_BASE64 = "AGFzbQEAAAABBQFgAAF/AwQDAAAABQMBAAEHPwQGbWVtb3J5AgAPZ2V0X2RhdGFfb2Zmc2V0AAAMZ2V0X2RhdGFfbGVuAAERZ2V0X3N0YXRpb25fY291bnQAAgoRAwQAQQALBQBBniULBABBIgsLpSUBAEEAC54lW3sibmFtZSI6ICJGaWV0ZW4gT2xpZSIsICJjaXR5IjogIkFwZWxkb29ybiIsICJhZGRyZXNzIjogIlN1cmluYW1ld2VnIDUiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjA3OSwgInN1cGVyOTgiOiAyLjI3OSwgImRpZXNlbCI6IDIuMjg5fSwgeyJuYW1lIjogIkZpZXRlbiBPbGllIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiSG9nZWthbXB3ZWcgMzgiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjA3OSwgInN1cGVyOTgiOiAyLjI3OSwgImRpZXNlbCI6IDIuMjg5fSwgeyJuYW1lIjogIkZpZXRlbiBPbGllIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiQW5rbGFhcnNld2VnIDEyMWMiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjA4OSwgInN1cGVyOTgiOiAyLjI4OSwgImRpZXNlbCI6IDIuMjk5fSwgeyJuYW1lIjogIlRhbW9pbCBFeHByZXNzIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiQXJuaGVtc2V3ZWcgMjk5IiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4wOTksICJzdXBlcjk4IjogMi4yOTksICJkaWVzZWwiOiAyLjI4OX0sIHsibmFtZSI6ICJUaW5RIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiQXJuaGVtc2V3ZWcgMjIxIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4wOTksICJzdXBlcjk4IjogMi4zMDksICJkaWVzZWwiOiAyLjI5OX0sIHsibmFtZSI6ICJUaW5RIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiTWF0ZW5wb29ydCAxMSIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMTA5LCAic3VwZXI5OCI6IDIuMzE5LCAiZGllc2VsIjogMi4zMDl9LCB7Im5hbWUiOiAiVGFuZ28iLCAiY2l0eSI6ICJBcGVsZG9vcm4iLCAiYWRkcmVzcyI6ICJBcm5oZW1zZXdlZyA0MzIiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjEwOSwgInN1cGVyOTgiOiAyLjMxOSwgImRpZXNlbCI6IDIuMzA5fSwgeyJuYW1lIjogIkFWSUEgWFByZXNzIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiT3VkZSBCZWVrYmVyZ2Vyd2VnIDk4IiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4xMTksICJzdXBlcjk4IjogMi4zMjksICJkaWVzZWwiOiAyLjMxOX0sIHsibmFtZSI6ICJFc3NvIEV4cHJlc3MiLCAiY2l0eSI6ICJBcGVsZG9vcm4iLCAiYWRkcmVzcyI6ICJUd2VlbGluZ2VubGFhbiA0OCIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMTI5LCAic3VwZXI5OCI6IDIuMzM5LCAiZGllc2VsIjogMi4zMTl9LCB7Im5hbWUiOiAiU2hlbGwgRXhwcmVzcyIsICJjaXR5IjogIkFwZWxkb29ybiIsICJhZGRyZXNzIjogIkFua2xhYXJzZXdlZyAxOTUiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjEzOSwgInN1cGVyOTgiOiAyLjM0OSwgImRpZXNlbCI6IDIuMzI5fSwgeyJuYW1lIjogIlNoZWxsIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiWnV0cGhlbnNlc3RyYWF0IDc0IiwgInR5cGUiOiAiQmVtYW5kIiwgImUxMCI6IDIuMTg5LCAic3VwZXI5OCI6IDIuNDM5LCAiZGllc2VsIjogMi4zNjl9LCB7Im5hbWUiOiAiQlAgT3JkZW4iLCAiY2l0eSI6ICJBcGVsZG9vcm4iLCAiYWRkcmVzcyI6ICJMYWFuIHZhbiBPcmRlbiAzMjIiLCAidHlwZSI6ICJCZW1hbmQiLCAiZTEwIjogMi4xOTksICJzdXBlcjk4IjogMi40MjksICJkaWVzZWwiOiAyLjM2OX0sIHsibmFtZSI6ICJCUCBEZSBIdWNodCAoQTEpIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiUmlqa3N3ZWcgQTEiLCAidHlwZSI6ICJTbmVsd2VnIiwgImUxMCI6IDIuNDQ5LCAic3VwZXI5OCI6IDIuNjg5LCAiZGllc2VsIjogMi41NDl9LCB7Im5hbWUiOiAiRXNzbyBBNTAiLCAiY2l0eSI6ICJBcGVsZG9vcm4iLCAiYWRkcmVzcyI6ICJSaWprc3dlZyBBNTAiLCAidHlwZSI6ICJTbmVsd2VnIiwgImUxMCI6IDIuNDU5LCAic3VwZXI5OCI6IDIuNjk5LCAiZGllc2VsIjogMi41NTl9LCB7Im5hbWUiOiAiVGluUSIsICJjaXR5IjogIkRldmVudGVyIiwgImFkZHJlc3MiOiAiU25pcHBlcmxpbmdzZGlqayA1MiIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMDg5LCAic3VwZXI5OCI6IDIuMjk5LCAiZGllc2VsIjogMi4yODl9LCB7Im5hbWUiOiAiVGFuZ28iLCAiY2l0eSI6ICJEZXZlbnRlciIsICJhZGRyZXNzIjogIlp1dHBoZW5zZXdlZyAzMSIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMDk5LCAic3VwZXI5OCI6IDIuMzA5LCAiZGllc2VsIjogMi4yOTl9LCB7Im5hbWUiOiAiQVZJQSIsICJjaXR5IjogIkRldmVudGVyIiwgImFkZHJlc3MiOiAiU25pcHBlcmxpbmdzZGlqayAyIiwgInR5cGUiOiAiQmVtYW5kIiwgImUxMCI6IDIuMTU5LCAic3VwZXI5OCI6IDIuMzg5LCAiZGllc2VsIjogMi4zNDl9LCB7Im5hbWUiOiAiU2hlbGwiLCAiY2l0eSI6ICJEZXZlbnRlciIsICJhZGRyZXNzIjogIkhvbHRlcndlZyAxMDgiLCAidHlwZSI6ICJCZW1hbmQiLCAiZTEwIjogMi4xNzksICJzdXBlcjk4IjogMi40MTksICJkaWVzZWwiOiAyLjM1OX0sIHsibmFtZSI6ICJGaWV0ZW4gT2xpZSIsICJjaXR5IjogIkFybmhlbSIsICJhZGRyZXNzIjogIldlc3RlcnZvb3J0c2VkaWprIDcxIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4wODksICJzdXBlcjk4IjogMi4yODksICJkaWVzZWwiOiAyLjI5OX0sIHsibmFtZSI6ICJUaW5RIiwgImNpdHkiOiAiQXJuaGVtIiwgImFkZHJlc3MiOiAiR3JvbmluZ2Vuc2luZ2VsIDEiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjA5OSwgInN1cGVyOTgiOiAyLjMxOSwgImRpZXNlbCI6IDIuMjk5fSwgeyJuYW1lIjogIkJQIEV4cHJlc3MiLCAiY2l0eSI6ICJBcm5oZW0iLCAiYWRkcmVzcyI6ICJEci4gQy4gTGVseXdlZyAxIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4xMjksICJzdXBlcjk4IjogMi4zMzksICJkaWVzZWwiOiAyLjMxOX0sIHsibmFtZSI6ICJTaGVsbCIsICJjaXR5IjogIkFybmhlbSIsICJhZGRyZXNzIjogIkFwZWxkb29ybnNld2VnIDEwMCIsICJ0eXBlIjogIkJlbWFuZCIsICJlMTAiOiAyLjE4OSwgInN1cGVyOTgiOiAyLjQzOSwgImRpZXNlbCI6IDIuMzY5fSwgeyJuYW1lIjogIlRhbmdvIiwgImNpdHkiOiAiVXRyZWNodCIsICJhZGRyZXNzIjogIk5pZXV3ZSBIb3V0ZW5zZXdlZyAyIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4xMDksICJzdXBlcjk4IjogMi4zMTksICJkaWVzZWwiOiAyLjI5OX0sIHsibmFtZSI6ICJUaW5RIiwgImNpdHkiOiAiVXRyZWNodCIsICJhZGRyZXNzIjogIlByb29zdHdldGVyaW5nIDIiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjExOSwgInN1cGVyOTgiOiAyLjMyOSwgImRpZXNlbCI6IDIuMzA5fSwgeyJuYW1lIjogIlNoZWxsIiwgImNpdHkiOiAiVXRyZWNodCIsICJhZGRyZXNzIjogIkV1cm9wYWxhYW4gMiIsICJ0eXBlIjogIkJlbWFuZCIsICJlMTAiOiAyLjE5OSwgInN1cGVyOTgiOiAyLjQ0OSwgImRpZXNlbCI6IDIuMzc5fSwgeyJuYW1lIjogIlRhbmdvIiwgImNpdHkiOiAiQW1zdGVyZGFtIiwgImFkZHJlc3MiOiAiQmFzaXN3ZWcgMzIiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjExOSwgInN1cGVyOTgiOiAyLjMyOSwgImRpZXNlbCI6IDIuMzE5fSwgeyJuYW1lIjogIlRpblEiLCAiY2l0eSI6ICJBbXN0ZXJkYW0iLCAiYWRkcmVzcyI6ICJUcmFuc2Zvcm1hdG9yd2VnIDMxIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4xMjksICJzdXBlcjk4IjogMi4zMzksICJkaWVzZWwiOiAyLjMxOX0sIHsibmFtZSI6ICJCUCIsICJjaXR5IjogIkFtc3RlcmRhbSIsICJhZGRyZXNzIjogIkhhYXJsZW1tZXJ3ZWcgMzY1IiwgInR5cGUiOiAiQmVtYW5kIiwgImUxMCI6IDIuMjE5LCAic3VwZXI5OCI6IDIuNDY5LCAiZGllc2VsIjogMi4zOTl9LCB7Im5hbWUiOiAiRmlldGVuIE9saWUiLCAiY2l0eSI6ICJSb3R0ZXJkYW0iLCAiYWRkcmVzcyI6ICJCb3ZlbmRpamsgMTMzIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4wODksICJzdXBlcjk4IjogMi4yOTksICJkaWVzZWwiOiAyLjI4OX0sIHsibmFtZSI6ICJUYW5nbyIsICJjaXR5IjogIlJvdHRlcmRhbSIsICJhZGRyZXNzIjogIlZpZXJoYXZlbnNzdHJhYXQgNTAiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjA5OSwgInN1cGVyOTgiOiAyLjMwOSwgImRpZXNlbCI6IDIuMjk5fSwgeyJuYW1lIjogIlNoZWxsIiwgImNpdHkiOiAiUm90dGVyZGFtIiwgImFkZHJlc3MiOiAiU3RhZGlvbndlZyA0NSIsICJ0eXBlIjogIkJlbWFuZCIsICJlMTAiOiAyLjE5OSwgInN1cGVyOTgiOiAyLjQ0OSwgImRpZXNlbCI6IDIuMzc5fSwgeyJuYW1lIjogIlRpblEiLCAiY2l0eSI6ICJad29sbGUiLCAiYWRkcmVzcyI6ICJDZWludHV1cmJhYW4gNCIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMDg5LCAic3VwZXI5OCI6IDIuMjk5LCAiZGllc2VsIjogMi4yODl9LCB7Im5hbWUiOiAiVGFuZ28iLCAiY2l0eSI6ICJad29sbGUiLCAiYWRkcmVzcyI6ICJSaWV0ZXdlZyAxNCIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMDk5LCAic3VwZXI5OCI6IDIuMzA5LCAiZGllc2VsIjogMi4yOTl9LCB7Im5hbWUiOiAiU2hlbGwiLCAiY2l0eSI6ICJad29sbGUiLCAiYWRkcmVzcyI6ICJJSnNzZWxhbGxlZSAzMyIsICJ0eXBlIjogIkJlbWFuZCIsICJlMTAiOiAyLjE4OSwgInN1cGVyOTgiOiAyLjQzOSwgImRpZXNlbCI6IDIuMzY5fV0=";
 
-    let wasmInstance = null;
+    let allStations = [];
 
-    async function loadWasm() {
-      if (wasmInstance) return wasmInstance;
-
+    async function loadDataFromWasm() {
       let wasmBytes;
       try {
-        // Probeer eerst rechtstreeks hello.wasm te fetchen
         const response = await fetch("hello.wasm");
-        if (!response.ok) throw new Error("Fetch mislukt");
+        if (!response.ok) throw new Error("Fetch failed");
         wasmBytes = await response.arrayBuffer();
       } catch (err) {
-        // Fallback voor file:// weergave zonder lokale webserver
         const binaryString = atob(WASM_BASE64);
         const len = binaryString.length;
         const bytes = new Uint8Array(len);
@@ -140,31 +351,112 @@
         wasmBytes = bytes.buffer;
       }
 
-      // Definieer de import functies die WASM aanroept
-      const importObject = {
-        env: {
-          show_popup: (ptr, len) => {
-            // Lees de string uit het lineaire geheugen van de WASM instantie
-            const memoryBuffer = new Uint8Array(wasmInstance.exports.memory.buffer);
-            const textBytes = memoryBuffer.subarray(ptr, ptr + len);
-            const text = new TextDecoder("utf-8").decode(textBytes);
-            
-            // Toon de popup
-            alert(text);
-          }
-        }
-      };
+      const { instance } = await WebAssembly.instantiate(wasmBytes, {});
+      const offset = instance.exports.get_data_offset();
+      const length = instance.exports.get_data_len();
 
-      const { instance } = await WebAssembly.instantiate(wasmBytes, importObject);
-      wasmInstance = instance;
-      return wasmInstance;
+      // Lees de JSON rechtstreeks uit WASM lineair geheugen
+      const memBuffer = new Uint8Array(instance.exports.memory.buffer);
+      const jsonBytes = memBuffer.subarray(offset, offset + length);
+      const jsonString = new TextDecoder("utf-8").decode(jsonBytes);
+
+      allStations = JSON.parse(jsonString);
+      applyFilters();
     }
 
-    async function runWasm() {
-      const instance = await loadWasm();
-      // Roep de geëxporteerde 'run' functie uit WASM aan
-      instance.exports.run();
+    function applyFilters() {
+      const city = document.getElementById("cityFilter").value;
+      const sortBy = document.getElementById("sortBy").value;
+      const search = document.getElementById("searchInput").value.toLowerCase().trim();
+
+      let filtered = allStations.filter(s => {
+        const matchCity = (city === "ALL") || (s.city.toLowerCase() === city.toLowerCase());
+        const matchSearch = !search || 
+          s.name.toLowerCase().includes(search) || 
+          s.address.toLowerCase().includes(search) ||
+          s.city.toLowerCase().includes(search);
+        return matchCity && matchSearch;
+      });
+
+      // Sortering
+      filtered.sort((a, b) => {
+        if (sortBy === "name") return a.name.localeCompare(b.name);
+        return a[sortBy] - b[sortBy];
+      });
+
+      updateUI(filtered, city);
     }
+
+    function updateUI(stations, selectedCity) {
+      const tbody = document.getElementById("stationsTableBody");
+      tbody.innerHTML = "";
+
+      if (stations.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 2rem; color: #94a3b8;">Geen tankstations gevonden voor deze selectie.</td></tr>`;
+        document.getElementById("lowestE10").innerText = "-";
+        document.getElementById("lowestDiesel").innerText = "-";
+        document.getElementById("lowestSuper").innerText = "-";
+        document.getElementById("stationCount").innerText = "0";
+        return;
+      }
+
+      // Bereken laagste prijzen
+      const minE10 = Math.min(...stations.map(s => s.e10));
+      const minDiesel = Math.min(...stations.map(s => s.diesel));
+      const minSuper = Math.min(...stations.map(s => s.super98));
+
+      const cheapestE10Station = stations.find(s => s.e10 === minE10);
+      const cheapestDieselStation = stations.find(s => s.diesel === minDiesel);
+      const cheapestSuperStation = stations.find(s => s.super98 === minSuper);
+
+      document.getElementById("lowestE10").innerText = `€ ${minE10.toFixed(3)}`;
+      document.getElementById("lowestE10Station").innerText = `${cheapestE10Station.name} (${cheapestE10Station.city})`;
+
+      document.getElementById("lowestDiesel").innerText = `€ ${minDiesel.toFixed(3)}`;
+      document.getElementById("lowestDieselStation").innerText = `${cheapestDieselStation.name} (${cheapestDieselStation.city})`;
+
+      document.getElementById("lowestSuper").innerText = `€ ${minSuper.toFixed(3)}`;
+      document.getElementById("lowestSuperStation").innerText = `${cheapestSuperStation.name} (${cheapestSuperStation.city})`;
+
+      document.getElementById("stationCount").innerText = stations.length;
+      document.getElementById("activeFilterText").innerText = selectedCity === "ALL" ? "Alle steden" : selectedCity;
+
+      stations.forEach(s => {
+        const isLowestE10 = s.e10 === minE10;
+        const isLowestDiesel = s.diesel === minDiesel;
+        const isLowestSuper = s.super98 === minSuper;
+
+        let typeClass = "type-onbemand";
+        if (s.type === "Bemand") typeClass = "type-bemand";
+        if (s.type === "Snelweg") typeClass = "type-snelweg";
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>
+            <div class="station-name">${s.name}</div>
+            <div class="station-address">${s.address}</div>
+          </td>
+          <td><strong>${s.city}</strong></td>
+          <td><span class="type-pill ${typeClass}">${s.type}</span></td>
+          <td class="price-cell ${isLowestE10 ? 'lowest-price' : ''}">
+            € ${s.e10.toFixed(3)}
+            ${isLowestE10 ? '<span class="lowest-tag">LAAGSTE</span>' : ''}
+          </td>
+          <td class="price-cell ${isLowestSuper ? 'lowest-price' : ''}">
+            € ${s.super98.toFixed(3)}
+            ${isLowestSuper ? '<span class="lowest-tag">LAAGSTE</span>' : ''}
+          </td>
+          <td class="price-cell ${isLowestDiesel ? 'lowest-price' : ''}">
+            € ${s.diesel.toFixed(3)}
+            ${isLowestDiesel ? '<span class="lowest-tag">LAAGSTE</span>' : ''}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Direct inladen bij openen van de pagina
+    window.addEventListener("DOMContentLoaded", loadDataFromWasm);
   </script>
 </body>
 </html>

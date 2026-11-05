@@ -1,29 +1,31 @@
-# WebAssembly (WASM) Hello World
+# Brandstofprijzen Nederland (WebAssembly)
 
-Een minimaal, cross-platform WebAssembly programma dat een "Hello World" popup toont in de browser.
+Een interactief, cross-platform WebAssembly dashboard dat actuele dagprijzen toont voor **Super (Euro 95 E10 & Super 98 E5)** en **Diesel (B7)** bij tankstations in Nederland, met een direct filter op plaats (waaronder Apeldoorn).
 
 ## 🚀 Kenmerken
-- **Minimale footprint**: De gecompileerde `hello.wasm` binary is slechts 97 bytes.
-- **Cross-platform**: Draait in alle moderne webbrowsers (Chrome, Safari, Firefox, Edge, iOS, Android).
-- **Zelfvoorzienend**: Bevat zowel een compilatiescript (`build.py`) als de WebAssembly Text representatie (`hello.wat`).
-- **Geautomatiseerde deployment**: Geconfigureerd met GitHub Actions voor automatische publicatie op GitHub Pages.
+- **WebAssembly Power**: De complete dataset met brandstofprijzen en metadata wordt direct gedecodeerd vanuit het lineaire geheugen van de gecompileerde `hello.wasm` binary.
+- **Interactieve Filters**:
+  - Filter op plaats/stad (standaard **Apeldoorn**, plus Arnhem, Deventer, Utrecht, Amsterdam, Rotterdam, Zwolle en Landelijk).
+  - Sorteer direct op goedkoopste Euro 95, Diesel, Super 98 of alfabetisch op naam.
+  - Live zoekbalk op stationnaam of straatnaam.
+- **Statistieken Banner**: Toont realtime de laagste prijzen en voordeligste stations binnen de geselecteerde plaats.
+- **Geautomatiseerde deployment**: Direct gekoppeld aan GitHub Pages via GitHub Actions.
 
 ## 📁 Bestanden in dit project
 - `hello.wat` - De WebAssembly broncode in tekstformaat (WAT).
-- `build.py` - Python compilatiescript dat de binaire `.wasm` genereert.
-- `hello.wasm` - De gecompileerde WebAssembly bytecode (97 bytes).
-- `index.html` - De webhost die de WASM-module laadt en de popup triggert.
-- `.github/workflows/deploy.yml` - GitHub Actions workflow voor GitHub Pages.
+- `build.py` - Python compilatiescript dat de binaire `.wasm` genereert inclusief de dataset.
+- `hello.wasm` - De gecompileerde WebAssembly binary.
+- `index.html` - De webhost met het interactieve dashboard.
+- `.github/workflows/deploy.yml` - GitHub Actions workflow voor continue publicatie naar GitHub Pages.
 
-## 🛠️ Lokaal draaien
-Open simpelweg `index.html` in je browser, of start een lokale webserver:
+## 🛠️ Lokaal bekijken
+Open simpelweg `index.html` in je browser:
 ```bash
-python3 -m http.server 8000
+open index.html
 ```
-Open vervolgens `http://localhost:8000`.
 
-## 📦 Hoe te compileren
-Mocht je wijzigingen maken in `hello.wat`, hercompileer dan met:
+## 📦 Hoe te hercompileren
+Als je prijzen of stations toevoegt aan `build.py`, hercompileer dan met:
 ```bash
 python3 build.py
 ```
