@@ -53,19 +53,21 @@ def build_wasm(output_path: str):
     export_run = encode_u32(len(b"run")) + b"run" + bytes([0x00, 0x01])
     export_sec = create_section(7, bytes([2]) + export_mem + export_run)
 
+    # Tekst die in het lineaire geheugen wordt geplaatst
+    text = b"What the fuck"
+
     # 6. Code section (ID 10): de bytecode van 'run'
-    # i32.const 0, i32.const 11, call 0, end
+    # i32.const 0, i32.const len(text), call 0, end
     func_body = bytes([
-        0x00,       # 0 lokale variabelen
-        0x41, 0x00, # i32.const 0 (geheugenoffset)
-        0x41, 0x0B, # i32.const 11 (lengte "Hello World")
-        0x10, 0x00, # call 0 (show_popup)
-        0x0B        # end opcode
+        0x00,              # 0 lokale variabelen
+        0x41, 0x00,        # i32.const 0 (geheugenoffset)
+        0x41, len(text),   # i32.const len(text)
+        0x10, 0x00,        # call 0 (show_popup)
+        0x0B               # end opcode
     ])
     code_sec = create_section(10, bytes([1]) + encode_u32(len(func_body)) + func_body)
 
-    # 7. Data section (ID 11): slaat "Hello World" op op adres 0
-    text = b"Hello World"
+    # 7. Data section (ID 11): slaat de tekst op op adres 0
     data_seg = bytes([0x00, 0x41, 0x00, 0x0B]) + encode_u32(len(text)) + text
     data_sec = create_section(11, bytes([1]) + data_seg)
 
