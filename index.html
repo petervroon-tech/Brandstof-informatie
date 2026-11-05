@@ -330,38 +330,43 @@
   </div>
 
   <script>
-    // Embedded fallback base64 voor lokale file:// weergave zonder CORS webserver
+    // 100% geverifieerde base64 van hello.wasm voor directe weergave zonder webserver
     const WASM_BASE64 = "AGFzbQEAAAABBQFgAAF/AwQDAAAABQMBAAEHPwQGbWVtb3J5AgAPZ2V0X2RhdGFfb2Zmc2V0AAAMZ2V0X2RhdGFfbGVuAAERZ2V0X3N0YXRpb25fY291bnQAAgoRAwQAQQALBQBBniULBABBIgsLpSUBAEEAC54lW3sibmFtZSI6ICJGaWV0ZW4gT2xpZSIsICJjaXR5IjogIkFwZWxkb29ybiIsICJhZGRyZXNzIjogIlN1cmluYW1ld2VnIDUiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjA3OSwgInN1cGVyOTgiOiAyLjI3OSwgImRpZXNlbCI6IDIuMjg5fSwgeyJuYW1lIjogIkZpZXRlbiBPbGllIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiSG9nZWthbXB3ZWcgMzgiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjA3OSwgInN1cGVyOTgiOiAyLjI3OSwgImRpZXNlbCI6IDIuMjg5fSwgeyJuYW1lIjogIkZpZXRlbiBPbGllIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiQW5rbGFhcnNld2VnIDEyMWMiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjA4OSwgInN1cGVyOTgiOiAyLjI4OSwgImRpZXNlbCI6IDIuMjk5fSwgeyJuYW1lIjogIlRhbW9pbCBFeHByZXNzIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiQXJuaGVtc2V3ZWcgMjk5IiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4wOTksICJzdXBlcjk4IjogMi4yOTksICJkaWVzZWwiOiAyLjI4OX0sIHsibmFtZSI6ICJUaW5RIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiQXJuaGVtc2V3ZWcgMjIxIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4wOTksICJzdXBlcjk4IjogMi4zMDksICJkaWVzZWwiOiAyLjI5OX0sIHsibmFtZSI6ICJUaW5RIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiTWF0ZW5wb29ydCAxMSIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMTA5LCAic3VwZXI5OCI6IDIuMzE5LCAiZGllc2VsIjogMi4zMDl9LCB7Im5hbWUiOiAiVGFuZ28iLCAiY2l0eSI6ICJBcGVsZG9vcm4iLCAiYWRkcmVzcyI6ICJBcm5oZW1zZXdlZyA0MzIiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjEwOSwgInN1cGVyOTgiOiAyLjMxOSwgImRpZXNlbCI6IDIuMzA5fSwgeyJuYW1lIjogIkFWSUEgWFByZXNzIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiT3VkZSBCZWVrYmVyZ2Vyd2VnIDk4IiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4xMTksICJzdXBlcjk4IjogMi4zMjksICJkaWVzZWwiOiAyLjMxOX0sIHsibmFtZSI6ICJFc3NvIEV4cHJlc3MiLCAiY2l0eSI6ICJBcGVsZG9vcm4iLCAiYWRkcmVzcyI6ICJUd2VlbGluZ2VubGFhbiA0OCIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMTI5LCAic3VwZXI5OCI6IDIuMzM5LCAiZGllc2VsIjogMi4zMTl9LCB7Im5hbWUiOiAiU2hlbGwgRXhwcmVzcyIsICJjaXR5IjogIkFwZWxkb29ybiIsICJhZGRyZXNzIjogIkFua2xhYXJzZXdlZyAxOTUiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjEzOSwgInN1cGVyOTgiOiAyLjM0OSwgImRpZXNlbCI6IDIuMzI5fSwgeyJuYW1lIjogIlNoZWxsIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiWnV0cGhlbnNlc3RyYWF0IDc0IiwgInR5cGUiOiAiQmVtYW5kIiwgImUxMCI6IDIuMTg5LCAic3VwZXI5OCI6IDIuNDM5LCAiZGllc2VsIjogMi4zNjl9LCB7Im5hbWUiOiAiQlAgT3JkZW4iLCAiY2l0eSI6ICJBcGVsZG9vcm4iLCAiYWRkcmVzcyI6ICJMYWFuIHZhbiBPcmRlbiAzMjIiLCAidHlwZSI6ICJCZW1hbmQiLCAiZTEwIjogMi4xOTksICJzdXBlcjk4IjogMi40MjksICJkaWVzZWwiOiAyLjM2OX0sIHsibmFtZSI6ICJCUCBEZSBIdWNodCAoQTEpIiwgImNpdHkiOiAiQXBlbGRvb3JuIiwgImFkZHJlc3MiOiAiUmlqa3N3ZWcgQTEiLCAidHlwZSI6ICJTbmVsd2VnIiwgImUxMCI6IDIuNDQ5LCAic3VwZXI5OCI6IDIuNjg5LCAiZGllc2VsIjogMi41NDl9LCB7Im5hbWUiOiAiRXNzbyBBNTAiLCAiY2l0eSI6ICJBcGVsZG9vcm4iLCAiYWRkcmVzcyI6ICJSaWprc3dlZyBBNTAiLCAidHlwZSI6ICJTbmVsd2VnIiwgImUxMCI6IDIuNDU5LCAic3VwZXI5OCI6IDIuNjk5LCAiZGllc2VsIjogMi41NTl9LCB7Im5hbWUiOiAiVGluUSIsICJjaXR5IjogIkRldmVudGVyIiwgImFkZHJlc3MiOiAiU25pcHBlcmxpbmdzZGlqayA1MiIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMDg5LCAic3VwZXI5OCI6IDIuMjk5LCAiZGllc2VsIjogMi4yODl9LCB7Im5hbWUiOiAiVGFuZ28iLCAiY2l0eSI6ICJEZXZlbnRlciIsICJhZGRyZXNzIjogIlp1dHBoZW5zZXdlZyAzMSIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMDk5LCAic3VwZXI5OCI6IDIuMzA5LCAiZGllc2VsIjogMi4yOTl9LCB7Im5hbWUiOiAiQVZJQSIsICJjaXR5IjogIkRldmVudGVyIiwgImFkZHJlc3MiOiAiU25pcHBlcmxpbmdzZGlqayAyIiwgInR5cGUiOiAiQmVtYW5kIiwgImUxMCI6IDIuMTU5LCAic3VwZXI5OCI6IDIuMzg5LCAiZGllc2VsIjogMi4zNDl9LCB7Im5hbWUiOiAiU2hlbGwiLCAiY2l0eSI6ICJEZXZlbnRlciIsICJhZGRyZXNzIjogIkhvbHRlcndlZyAxMDgiLCAidHlwZSI6ICJCZW1hbmQiLCAiZTEwIjogMi4xNzksICJzdXBlcjk4IjogMi40MTksICJkaWVzZWwiOiAyLjM1OX0sIHsibmFtZSI6ICJGaWV0ZW4gT2xpZSIsICJjaXR5IjogIkFybmhlbSIsICJhZGRyZXNzIjogIldlc3RlcnZvb3J0c2VkaWprIDcxIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4wODksICJzdXBlcjk4IjogMi4yODksICJkaWVzZWwiOiAyLjI5OX0sIHsibmFtZSI6ICJUaW5RIiwgImNpdHkiOiAiQXJuaGVtIiwgImFkZHJlc3MiOiAiR3JvbmluZ2Vuc2luZ2VsIDEiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjA5OSwgInN1cGVyOTgiOiAyLjMxOSwgImRpZXNlbCI6IDIuMjk5fSwgeyJuYW1lIjogIkJQIEV4cHJlc3MiLCAiY2l0eSI6ICJBcm5oZW0iLCAiYWRkcmVzcyI6ICJEci4gQy4gTGVseXdlZyAxIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4xMjksICJzdXBlcjk4IjogMi4zMzksICJkaWVzZWwiOiAyLjMxOX0sIHsibmFtZSI6ICJTaGVsbCIsICJjaXR5IjogIkFybmhlbSIsICJhZGRyZXNzIjogIkFwZWxkb29ybnNld2VnIDEwMCIsICJ0eXBlIjogIkJlbWFuZCIsICJlMTAiOiAyLjE4OSwgInN1cGVyOTgiOiAyLjQzOSwgImRpZXNlbCI6IDIuMzY5fSwgeyJuYW1lIjogIlRhbmdvIiwgImNpdHkiOiAiVXRyZWNodCIsICJhZGRyZXNzIjogIk5pZXV3ZSBIb3V0ZW5zZXdlZyAyIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4xMDksICJzdXBlcjk4IjogMi4zMTksICJkaWVzZWwiOiAyLjI5OX0sIHsibmFtZSI6ICJUaW5RIiwgImNpdHkiOiAiVXRyZWNodCIsICJhZGRyZXNzIjogIlByb29zdHdldGVyaW5nIDIiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjExOSwgInN1cGVyOTgiOiAyLjMyOSwgImRpZXNlbCI6IDIuMzA5fSwgeyJuYW1lIjogIlNoZWxsIiwgImNpdHkiOiAiVXRyZWNodCIsICJhZGRyZXNzIjogIkV1cm9wYWxhYW4gMiIsICJ0eXBlIjogIkJlbWFuZCIsICJlMTAiOiAyLjE5OSwgInN1cGVyOTgiOiAyLjQ0OSwgImRpZXNlbCI6IDIuMzc5fSwgeyJuYW1lIjogIlRhbmdvIiwgImNpdHkiOiAiQW1zdGVyZGFtIiwgImFkZHJlc3MiOiAiQmFzaXN3ZWcgMzIiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjExOSwgInN1cGVyOTgiOiAyLjMyOSwgImRpZXNlbCI6IDIuMzE5fSwgeyJuYW1lIjogIlRpblEiLCAiY2l0eSI6ICJBbXN0ZXJkYW0iLCAiYWRkcmVzcyI6ICJUcmFuc2Zvcm1hdG9yd2VnIDMxIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4xMjksICJzdXBlcjk4IjogMi4zMzksICJkaWVzZWwiOiAyLjMxOX0sIHsibmFtZSI6ICJCUCIsICJjaXR5IjogIkFtc3RlcmRhbSIsICJhZGRyZXNzIjogIkhhYXJsZW1tZXJ3ZWcgMzY1IiwgInR5cGUiOiAiQmVtYW5kIiwgImUxMCI6IDIuMjE5LCAic3VwZXI5OCI6IDIuNDY5LCAiZGllc2VsIjogMi4zOTl9LCB7Im5hbWUiOiAiRmlldGVuIE9saWUiLCAiY2l0eSI6ICJSb3R0ZXJkYW0iLCAiYWRkcmVzcyI6ICJCb3ZlbmRpamsgMTMzIiwgInR5cGUiOiAiT25iZW1hbmQiLCAiZTEwIjogMi4wODksICJzdXBlcjk4IjogMi4yOTksICJkaWVzZWwiOiAyLjI4OX0sIHsibmFtZSI6ICJUYW5nbyIsICJjaXR5IjogIlJvdHRlcmRhbSIsICJhZGRyZXNzIjogIlZpZXJoYXZlbnNzdHJhYXQgNTAiLCAidHlwZSI6ICJPbmJlbWFuZCIsICJlMTAiOiAyLjA5OSwgInN1cGVyOTgiOiAyLjMwOSwgImRpZXNlbCI6IDIuMjk5fSwgeyJuYW1lIjogIlNoZWxsIiwgImNpdHkiOiAiUm90dGVyZGFtIiwgImFkZHJlc3MiOiAiU3RhZGlvbndlZyA0NSIsICJ0eXBlIjogIkJlbWFuZCIsICJlMTAiOiAyLjE5OSwgInN1cGVyOTgiOiAyLjQ0OSwgImRpZXNlbCI6IDIuMzc5fSwgeyJuYW1lIjogIlRpblEiLCAiY2l0eSI6ICJad29sbGUiLCAiYWRkcmVzcyI6ICJDZWludHV1cmJhYW4gNCIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMDg5LCAic3VwZXI5OCI6IDIuMjk5LCAiZGllc2VsIjogMi4yODl9LCB7Im5hbWUiOiAiVGFuZ28iLCAiY2l0eSI6ICJad29sbGUiLCAiYWRkcmVzcyI6ICJSaWV0ZXdlZyAxNCIsICJ0eXBlIjogIk9uYmVtYW5kIiwgImUxMCI6IDIuMDk5LCAic3VwZXI5OCI6IDIuMzA5LCAiZGllc2VsIjogMi4yOTl9LCB7Im5hbWUiOiAiU2hlbGwiLCAiY2l0eSI6ICJad29sbGUiLCAiYWRkcmVzcyI6ICJJSnNzZWxhbGxlZSAzMyIsICJ0eXBlIjogIkJlbWFuZCIsICJlMTAiOiAyLjE4OSwgInN1cGVyOTgiOiAyLjQzOSwgImRpZXNlbCI6IDIuMzY5fV0=";
 
     let allStations = [];
 
     async function loadDataFromWasm() {
-      let wasmBytes;
       try {
-        const response = await fetch("hello.wasm");
-        if (!response.ok) throw new Error("Fetch failed");
-        wasmBytes = await response.arrayBuffer();
-      } catch (err) {
-        const binaryString = atob(WASM_BASE64);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
+        let wasmBytes;
+        try {
+          const response = await fetch("hello.wasm");
+          if (!response.ok) throw new Error("Fetch failed");
+          wasmBytes = await response.arrayBuffer();
+        } catch (fetchErr) {
+          // Fallback via embedded base64 voor lokale file:// weergave
+          const binaryString = atob(WASM_BASE64);
+          const len = binaryString.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          wasmBytes = bytes.buffer;
         }
-        wasmBytes = bytes.buffer;
+
+        const { instance } = await WebAssembly.instantiate(wasmBytes, {});
+        const offset = instance.exports.get_data_offset();
+        const length = instance.exports.get_data_len();
+
+        // Lees de JSON rechtstreeks uit het lineaire geheugen van WASM
+        const memBuffer = new Uint8Array(instance.exports.memory.buffer);
+        const jsonBytes = memBuffer.subarray(offset, offset + length);
+        const jsonString = new TextDecoder("utf-8").decode(jsonBytes);
+
+        allStations = JSON.parse(jsonString);
+        applyFilters();
+      } catch (err) {
+        console.error("Fout bij inladen via WebAssembly:", err);
       }
-
-      const { instance } = await WebAssembly.instantiate(wasmBytes, {});
-      const offset = instance.exports.get_data_offset();
-      const length = instance.exports.get_data_len();
-
-      // Lees de JSON rechtstreeks uit WASM lineair geheugen
-      const memBuffer = new Uint8Array(instance.exports.memory.buffer);
-      const jsonBytes = memBuffer.subarray(offset, offset + length);
-      const jsonString = new TextDecoder("utf-8").decode(jsonBytes);
-
-      allStations = JSON.parse(jsonString);
-      applyFilters();
     }
 
     function applyFilters() {
@@ -455,8 +460,12 @@
       });
     }
 
-    // Direct inladen bij openen van de pagina
-    window.addEventListener("DOMContentLoaded", loadDataFromWasm);
+    // Direct aanroepen en garanderen dat het uitvoert ongeacht DOM-status
+    if (document.readyState === "loading") {
+      window.addEventListener("DOMContentLoaded", loadDataFromWasm);
+    } else {
+      loadDataFromWasm();
+    }
   </script>
 </body>
 </html>
