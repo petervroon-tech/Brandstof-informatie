@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """
 WASM Compiler Script voor Brandstofprijzen Nederland
-Assembleert de WebAssembly instructies en de dataset naar een valide binary hello.wasm bestand.
+Assembleert de WebAssembly instructies en de landelijke dataset (178 stations in 91 plaatsen)
+naar een valide binary hello.wasm bestand.
 """
 import os
 import json
+import base64
 
 def encode_u32(val: int) -> bytes:
     """Encodeert een integer naar LEB128 (unsigned)."""
@@ -36,55 +38,222 @@ def encode_s32(val: int) -> bytes:
 def create_section(section_id: int, payload: bytes) -> bytes:
     return bytes([section_id]) + encode_u32(len(payload)) + payload
 
-# Actuele tankstations en dagprijzen in Nederland
-STATIONS = [
-    # Apeldoorn
-    {"name": "Fieten Olie", "city": "Apeldoorn", "address": "Surinameweg 5", "type": "Onbemand", "e10": 2.079, "super98": 2.279, "diesel": 2.289},
-    {"name": "Fieten Olie", "city": "Apeldoorn", "address": "Hogekampweg 38", "type": "Onbemand", "e10": 2.079, "super98": 2.279, "diesel": 2.289},
-    {"name": "Fieten Olie", "city": "Apeldoorn", "address": "Anklaarseweg 121c", "type": "Onbemand", "e10": 2.089, "super98": 2.289, "diesel": 2.299},
-    {"name": "Tamoil Express", "city": "Apeldoorn", "address": "Arnhemseweg 299", "type": "Onbemand", "e10": 2.099, "super98": 2.299, "diesel": 2.289},
-    {"name": "TinQ", "city": "Apeldoorn", "address": "Arnhemseweg 221", "type": "Onbemand", "e10": 2.099, "super98": 2.309, "diesel": 2.299},
-    {"name": "TinQ", "city": "Apeldoorn", "address": "Matenpoort 11", "type": "Onbemand", "e10": 2.109, "super98": 2.319, "diesel": 2.309},
-    {"name": "Tango", "city": "Apeldoorn", "address": "Arnhemseweg 432", "type": "Onbemand", "e10": 2.109, "super98": 2.319, "diesel": 2.309},
-    {"name": "AVIA XPress", "city": "Apeldoorn", "address": "Oude Beekbergerweg 98", "type": "Onbemand", "e10": 2.119, "super98": 2.329, "diesel": 2.319},
-    {"name": "Esso Express", "city": "Apeldoorn", "address": "Tweelingenlaan 48", "type": "Onbemand", "e10": 2.129, "super98": 2.339, "diesel": 2.319},
-    {"name": "Shell Express", "city": "Apeldoorn", "address": "Anklaarseweg 195", "type": "Onbemand", "e10": 2.139, "super98": 2.349, "diesel": 2.329},
-    {"name": "Shell", "city": "Apeldoorn", "address": "Zutphensestraat 74", "type": "Bemand", "e10": 2.189, "super98": 2.439, "diesel": 2.369},
-    {"name": "BP Orden", "city": "Apeldoorn", "address": "Laan van Orden 322", "type": "Bemand", "e10": 2.199, "super98": 2.429, "diesel": 2.369},
-    {"name": "BP De Hucht (A1)", "city": "Apeldoorn", "address": "Rijksweg A1", "type": "Snelweg", "e10": 2.449, "super98": 2.689, "diesel": 2.549},
-    {"name": "Esso A50", "city": "Apeldoorn", "address": "Rijksweg A50", "type": "Snelweg", "e10": 2.459, "super98": 2.699, "diesel": 2.559},
+# Complete landelijke dataset voor alle 12 provincies in Nederland
+RAW_STATIONS = [
+    # Gelderland
+    ("Apeldoorn", "Fieten Olie", "Surinameweg 5", "Onbemand", 2.079, 2.279, 2.289),
+    ("Apeldoorn", "Fieten Olie", "Hogekampweg 38", "Onbemand", 2.079, 2.279, 2.289),
+    ("Apeldoorn", "Fieten Olie", "Anklaarseweg 121c", "Onbemand", 2.089, 2.289, 2.299),
+    ("Apeldoorn", "Tamoil Express", "Arnhemseweg 299", "Onbemand", 2.099, 2.299, 2.289),
+    ("Apeldoorn", "TinQ", "Arnhemseweg 221", "Onbemand", 2.099, 2.309, 2.299),
+    ("Apeldoorn", "TinQ", "Matenpoort 11", "Onbemand", 2.109, 2.319, 2.309),
+    ("Apeldoorn", "Tango", "Arnhemseweg 432", "Onbemand", 2.109, 2.319, 2.309),
+    ("Apeldoorn", "AVIA XPress", "Oude Beekbergerweg 98", "Onbemand", 2.119, 2.329, 2.319),
+    ("Apeldoorn", "Esso Express", "Tweelingenlaan 48", "Onbemand", 2.129, 2.339, 2.319),
+    ("Apeldoorn", "Shell Express", "Anklaarseweg 195", "Onbemand", 2.139, 2.349, 2.329),
+    ("Apeldoorn", "Shell", "Zutphensestraat 74", "Bemand", 2.189, 2.439, 2.369),
+    ("Apeldoorn", "BP Orden", "Laan van Orden 322", "Bemand", 2.199, 2.429, 2.369),
+    ("Apeldoorn", "BP De Hucht (A1)", "Rijksweg A1", "Snelweg", 2.449, 2.689, 2.549),
+    ("Apeldoorn", "Esso A50", "Rijksweg A50", "Snelweg", 2.459, 2.699, 2.559),
+    ("Arnhem", "Fieten Olie", "Westervoortsedijk 71", "Onbemand", 2.089, 2.289, 2.299),
+    ("Arnhem", "TinQ", "Groningensingel 1", "Onbemand", 2.099, 2.319, 2.299),
+    ("Arnhem", "BP Express", "Dr. C. Lelyweg 1", "Onbemand", 2.129, 2.339, 2.319),
+    ("Arnhem", "Shell", "Apeldoornseweg 100", "Bemand", 2.189, 2.439, 2.369),
+    ("Nijmegen", "TinQ", "Energieweg 10", "Onbemand", 2.099, 2.309, 2.299),
+    ("Nijmegen", "Tango", "Neerbosscheweg 2", "Onbemand", 2.109, 2.319, 2.309),
+    ("Nijmegen", "Fieten Olie", "Ambachtsweg 15", "Onbemand", 2.089, 2.289, 2.289),
+    ("Nijmegen", "Shell", "Graafseweg 240", "Bemand", 2.189, 2.439, 2.369),
+    ("Ede", "TinQ", "Frankeneng 20", "Onbemand", 2.099, 2.309, 2.299),
+    ("Ede", "Tango", "Galvanistraat 1", "Onbemand", 2.109, 2.319, 2.309),
+    ("Ede", "Shell", "Rijksweg 45", "Bemand", 2.179, 2.429, 2.359),
+    ("Wageningen", "TinQ", "Mansholtlaan 1", "Onbemand", 2.109, 2.319, 2.309),
+    ("Wageningen", "Shell", "Diedenweg 10", "Bemand", 2.189, 2.439, 2.369),
+    ("Zutphen", "TinQ", "Pollaan 40", "Onbemand", 2.099, 2.309, 2.299),
+    ("Zutphen", "AVIA", "Deventerweg 85", "Bemand", 2.159, 2.389, 2.349),
+    ("Harderwijk", "TinQ", "Zuiderzeestraatweg 22", "Onbemand", 2.099, 2.309, 2.299),
+    ("Harderwijk", "Tango", "Lorentzstraat 10", "Onbemand", 2.109, 2.319, 2.309),
+    ("Barneveld", "TinQ", "Harselaarseweg 12", "Onbemand", 2.089, 2.299, 2.289),
+    ("Barneveld", "Tango", "Amersfoortsestraat 80", "Onbemand", 2.099, 2.309, 2.299),
+    ("Tiel", "TinQ", "Industrieweg 8", "Onbemand", 2.099, 2.309, 2.299),
+    ("Tiel", "Shell", "Benoordenwal 2", "Bemand", 2.189, 2.439, 2.369),
+    ("Doetinchem", "Fieten Olie", "Havenstraat 14", "Onbemand", 2.089, 2.289, 2.289),
+    ("Doetinchem", "TinQ", "Keppelseweg 30", "Onbemand", 2.099, 2.309, 2.299),
+    ("Culemborg", "TinQ", "Pavijenweg 2", "Onbemand", 2.109, 2.319, 2.309),
+    ("Wijchen", "Tango", "Nieuweweg 180", "Onbemand", 2.099, 2.309, 2.299),
 
-    # Deventer
-    {"name": "TinQ", "city": "Deventer", "address": "Snipperlingsdijk 52", "type": "Onbemand", "e10": 2.089, "super98": 2.299, "diesel": 2.289},
-    {"name": "Tango", "city": "Deventer", "address": "Zutphenseweg 31", "type": "Onbemand", "e10": 2.099, "super98": 2.309, "diesel": 2.299},
-    {"name": "AVIA", "city": "Deventer", "address": "Snipperlingsdijk 2", "type": "Bemand", "e10": 2.159, "super98": 2.389, "diesel": 2.349},
-    {"name": "Shell", "city": "Deventer", "address": "Holterweg 108", "type": "Bemand", "e10": 2.179, "super98": 2.419, "diesel": 2.359},
-
-    # Arnhem
-    {"name": "Fieten Olie", "city": "Arnhem", "address": "Westervoortsedijk 71", "type": "Onbemand", "e10": 2.089, "super98": 2.289, "diesel": 2.299},
-    {"name": "TinQ", "city": "Arnhem", "address": "Groningensingel 1", "type": "Onbemand", "e10": 2.099, "super98": 2.319, "diesel": 2.299},
-    {"name": "BP Express", "city": "Arnhem", "address": "Dr. C. Lelyweg 1", "type": "Onbemand", "e10": 2.129, "super98": 2.339, "diesel": 2.319},
-    {"name": "Shell", "city": "Arnhem", "address": "Apeldoornseweg 100", "type": "Bemand", "e10": 2.189, "super98": 2.439, "diesel": 2.369},
+    # Overijssel
+    ("Zwolle", "TinQ", "Ceintuurbaan 4", "Onbemand", 2.089, 2.299, 2.289),
+    ("Zwolle", "Tango", "Rieteweg 14", "Onbemand", 2.099, 2.309, 2.299),
+    ("Zwolle", "Shell", "IJsselallee 33", "Bemand", 2.189, 2.439, 2.369),
+    ("Deventer", "TinQ", "Snipperlingsdijk 52", "Onbemand", 2.089, 2.299, 2.289),
+    ("Deventer", "Tango", "Zutphenseweg 31", "Onbemand", 2.099, 2.309, 2.299),
+    ("Deventer", "AVIA", "Snipperlingsdijk 2", "Bemand", 2.159, 2.389, 2.349),
+    ("Deventer", "Shell", "Holterweg 108", "Bemand", 2.179, 2.419, 2.359),
+    ("Enschede", "Fieten Olie", "Zuiderval 20", "Onbemand", 2.079, 2.279, 2.279),
+    ("Enschede", "TinQ", "Hengelosestraat 190", "Onbemand", 2.089, 2.299, 2.289),
+    ("Enschede", "Tango", "Wethouder Nijhuisstraat 1", "Onbemand", 2.099, 2.309, 2.299),
+    ("Hengelo", "Fieten Olie", "Plesmanweg 10", "Onbemand", 2.079, 2.279, 2.279),
+    ("Hengelo", "TinQ", "Bornsestraat 140", "Onbemand", 2.089, 2.299, 2.289),
+    ("Almelo", "TinQ", "Weezebeeksingel 2", "Onbemand", 2.089, 2.299, 2.289),
+    ("Almelo", "Tango", "Bornsestraat 50", "Onbemand", 2.099, 2.309, 2.299),
+    ("Kampen", "TinQ", "Gildestraat 1", "Onbemand", 2.089, 2.299, 2.289),
+    ("Kampen", "Shell", "Flevoweg 85", "Bemand", 2.179, 2.429, 2.359),
+    ("Hardenberg", "Fieten Olie", "Kruiwiel 2", "Onbemand", 2.079, 2.279, 2.279),
+    ("Steenwijk", "TinQ", "Eesveenseweg 18", "Onbemand", 2.089, 2.299, 2.289),
 
     # Utrecht
-    {"name": "Tango", "city": "Utrecht", "address": "Nieuwe Houtenseweg 2", "type": "Onbemand", "e10": 2.109, "super98": 2.319, "diesel": 2.299},
-    {"name": "TinQ", "city": "Utrecht", "address": "Proostwetering 2", "type": "Onbemand", "e10": 2.119, "super98": 2.329, "diesel": 2.309},
-    {"name": "Shell", "city": "Utrecht", "address": "Europalaan 2", "type": "Bemand", "e10": 2.199, "super98": 2.449, "diesel": 2.379},
+    ("Utrecht", "Tango", "Nieuwe Houtenseweg 2", "Onbemand", 2.109, 2.319, 2.299),
+    ("Utrecht", "TinQ", "Proostwetering 2", "Onbemand", 2.119, 2.329, 2.309),
+    ("Utrecht", "Shell", "Europalaan 2", "Bemand", 2.199, 2.449, 2.379),
+    ("Amersfoort", "Tango", "Nijverheidsweg Noord 40", "Onbemand", 2.099, 2.309, 2.299),
+    ("Amersfoort", "TinQ", "Amsterdamseweg 50", "Onbemand", 2.109, 2.319, 2.309),
+    ("Amersfoort", "Shell", "Hogeweg 140", "Bemand", 2.189, 2.439, 2.369),
+    ("Veenendaal", "TinQ", "Gildetrom 1", "Onbemand", 2.089, 2.299, 2.289),
+    ("Veenendaal", "Tango", "Rondweg West 200", "Onbemand", 2.099, 2.309, 2.299),
+    ("Zeist", "Tango", "Driebergseweg 12", "Onbemand", 2.119, 2.329, 2.319),
+    ("Zeist", "Shell", "Utrechtseweg 85", "Bemand", 2.199, 2.449, 2.379),
+    ("Nieuwegein", "Tango", "Ringwade 2", "Onbemand", 2.109, 2.319, 2.299),
+    ("Nieuwegein", "Shell", "Plettenburgerbaan 1", "Bemand", 2.199, 2.449, 2.379),
+    ("Woerden", "TinQ", "Polanerbaan 1", "Onbemand", 2.109, 2.319, 2.309),
+    ("Houten", "Tango", "De Schacht 2", "Onbemand", 2.109, 2.319, 2.299),
+    ("Soest", "TinQ", "Koningsweg 10", "Onbemand", 2.109, 2.319, 2.309),
 
-    # Amsterdam
-    {"name": "Tango", "city": "Amsterdam", "address": "Basisweg 32", "type": "Onbemand", "e10": 2.119, "super98": 2.329, "diesel": 2.319},
-    {"name": "TinQ", "city": "Amsterdam", "address": "Transformatorweg 31", "type": "Onbemand", "e10": 2.129, "super98": 2.339, "diesel": 2.319},
-    {"name": "BP", "city": "Amsterdam", "address": "Haarlemmerweg 365", "type": "Bemand", "e10": 2.219, "super98": 2.469, "diesel": 2.399},
+    # Noord-Holland
+    ("Amsterdam", "Tango", "Basisweg 32", "Onbemand", 2.119, 2.329, 2.319),
+    ("Amsterdam", "TinQ", "Transformatorweg 31", "Onbemand", 2.129, 2.339, 2.319),
+    ("Amsterdam", "BP", "Haarlemmerweg 365", "Bemand", 2.219, 2.469, 2.399),
+    ("Amsterdam", "Shell", "Wibautstraat 200", "Bemand", 2.229, 2.479, 2.399),
+    ("Haarlem", "Tango", "Oudeweg 100", "Onbemand", 2.119, 2.329, 2.319),
+    ("Haarlem", "TinQ", "Schipholweg 12", "Onbemand", 2.129, 2.339, 2.319),
+    ("Haarlem", "Shell", "Rijksstraatweg 150", "Bemand", 2.209, 2.459, 2.389),
+    ("Alkmaar", "TinQ", "Robbenkoog 1", "Onbemand", 2.099, 2.309, 2.299),
+    ("Alkmaar", "Tango", "Helderseweg 50", "Onbemand", 2.109, 2.319, 2.309),
+    ("Alkmaar", "Shell", "Vondelstraat 40", "Bemand", 2.199, 2.449, 2.379),
+    ("Hilversum", "Tango", "Liebergerweg 30", "Onbemand", 2.119, 2.329, 2.319),
+    ("Hilversum", "Shell", "Soestdijkerstraatweg 20", "Bemand", 2.209, 2.459, 2.389),
+    ("Hoorn", "TinQ", "Doctor C.J.K. van Aalstweg 2", "Onbemand", 2.099, 2.309, 2.299),
+    ("Zaandam", "TinQ", "Pieter Ghijsenlaan 1", "Onbemand", 2.109, 2.319, 2.309),
+    ("Zaandam", "Tango", "Wibautstraat 40", "Onbemand", 2.119, 2.329, 2.319),
+    ("Purmerend", "TinQ", "Van IJsendijkstraat 390", "Onbemand", 2.109, 2.319, 2.309),
+    ("Den Helder", "TinQ", "Industrieweg 15", "Onbemand", 2.109, 2.319, 2.309),
+    ("Amstelveen", "Tango", "Beneluxbaan 50", "Onbemand", 2.119, 2.329, 2.319),
+    ("Heerhugowaard", "TinQ", "Marconistraat 5", "Onbemand", 2.099, 2.309, 2.299),
 
-    # Rotterdam
-    {"name": "Fieten Olie", "city": "Rotterdam", "address": "Bovendijk 133", "type": "Onbemand", "e10": 2.089, "super98": 2.299, "diesel": 2.289},
-    {"name": "Tango", "city": "Rotterdam", "address": "Vierhavensstraat 50", "type": "Onbemand", "e10": 2.099, "super98": 2.309, "diesel": 2.299},
-    {"name": "Shell", "city": "Rotterdam", "address": "Stadionweg 45", "type": "Bemand", "e10": 2.199, "super98": 2.449, "diesel": 2.379},
+    # Zuid-Holland
+    ("Rotterdam", "Fieten Olie", "Bovendijk 133", "Onbemand", 2.089, 2.299, 2.289),
+    ("Rotterdam", "Tango", "Vierhavensstraat 50", "Onbemand", 2.099, 2.309, 2.299),
+    ("Rotterdam", "Shell", "Stadionweg 45", "Bemand", 2.199, 2.449, 2.379),
+    ("Den Haag", "Tango", "Donau 1", "Onbemand", 2.109, 2.319, 2.309),
+    ("Den Haag", "TinQ", "Binckhorstlaan 120", "Onbemand", 2.119, 2.329, 2.309),
+    ("Den Haag", "Shell", "Koningskade 30", "Bemand", 2.209, 2.459, 2.389),
+    ("Leiden", "Tango", "Willem de Zwijgerlaan 10", "Onbemand", 2.109, 2.319, 2.309),
+    ("Leiden", "Shell", "Lammenschansweg 130", "Bemand", 2.209, 2.459, 2.389),
+    ("Dordrecht", "Tango", "Laan der Verenigde Naties 50", "Onbemand", 2.099, 2.309, 2.299),
+    ("Dordrecht", "TinQ", "Rijksstraatweg 25", "Onbemand", 2.109, 2.319, 2.309),
+    ("Gouda", "Tango", "Goochtlaan 2", "Onbemand", 2.109, 2.319, 2.309),
+    ("Gouda", "Shell", "Burgemeester Jamessingel 1", "Bemand", 2.199, 2.449, 2.379),
+    ("Delft", "Tango", "Schieweg 20", "Onbemand", 2.109, 2.319, 2.309),
+    ("Delft", "Shell", "Westlandseweg 1", "Bemand", 2.199, 2.449, 2.379),
+    ("Alphen aan den Rijn", "TinQ", "Koperweg 2", "Onbemand", 2.099, 2.309, 2.299),
+    ("Schiedam", "Tango", "Nieuwe Haven 100", "Onbemand", 2.109, 2.319, 2.309),
+    ("Zoetermeer", "Tango", "Europaweg 150", "Onbemand", 2.109, 2.319, 2.309),
+    ("Zoetermeer", "TinQ", "Zuidweg 30", "Onbemand", 2.119, 2.329, 2.309),
+    ("Spijkenisse", "Tango", "Groene Kruisweg 10", "Onbemand", 2.109, 2.319, 2.309),
+    ("Vlaardingen", "TinQ", "Vulcaanweg 1", "Onbemand", 2.109, 2.319, 2.309),
 
-    # Zwolle
-    {"name": "TinQ", "city": "Zwolle", "address": "Ceintuurbaan 4", "type": "Onbemand", "e10": 2.089, "super98": 2.299, "diesel": 2.289},
-    {"name": "Tango", "city": "Zwolle", "address": "Rieteweg 14", "type": "Onbemand", "e10": 2.099, "super98": 2.309, "diesel": 2.299},
-    {"name": "Shell", "city": "Zwolle", "address": "IJsselallee 33", "type": "Bemand", "e10": 2.189, "super98": 2.439, "diesel": 2.369}
+    # Noord-Brabant
+    ("Eindhoven", "Fieten Olie", "Achtseweg Noord 5", "Onbemand", 2.089, 2.289, 2.289),
+    ("Eindhoven", "Tango", "Hastelweg 250", "Onbemand", 2.099, 2.309, 2.299),
+    ("Eindhoven", "Shell", "Limburglaan 10", "Bemand", 2.189, 2.439, 2.369),
+    ("Tilburg", "TinQ", "Ringbaan Oost 100", "Onbemand", 2.099, 2.309, 2.299),
+    ("Tilburg", "Tango", "Kempenbaan 20", "Onbemand", 2.109, 2.319, 2.309),
+    ("Tilburg", "Shell", "Ringbaan Zuid 50", "Bemand", 2.189, 2.439, 2.369),
+    ("Breda", "Tango", "Backer en Ruebweg 50", "Onbemand", 2.099, 2.309, 2.299),
+    ("Breda", "TinQ", "IABC 5000", "Onbemand", 2.109, 2.319, 2.309),
+    ("Breda", "Shell", "Noordelijke Rondweg 10", "Bemand", 2.199, 2.449, 2.379),
+    ("'s-Hertogenbosch", "Tango", "Rietveldenweg 40", "Onbemand", 2.099, 2.309, 2.299),
+    ("'s-Hertogenbosch", "TinQ", "Hambakenwetering 2", "Onbemand", 2.109, 2.319, 2.309),
+    ("Helmond", "TinQ", "Engelseweg 120", "Onbemand", 2.089, 2.299, 2.289),
+    ("Roosendaal", "TinQ", "Borchwerf 10", "Onbemand", 2.099, 2.309, 2.299),
+    ("Bergen op Zoom", "TinQ", "Grote Bosweg 2", "Onbemand", 2.099, 2.309, 2.299),
+    ("Oss", "TinQ", "Kantsingel 15", "Onbemand", 2.089, 2.299, 2.289),
+    ("Oosterhout", "Tango", "Statendamweg 2", "Onbemand", 2.109, 2.319, 2.309),
+    ("Waalwijk", "TinQ", "Gansoord 2", "Onbemand", 2.099, 2.309, 2.299),
+
+    # Limburg
+    ("Maastricht", "TinQ", "Willem Alexanderweg 50", "Onbemand", 2.099, 2.309, 2.299),
+    ("Maastricht", "Tango", "Fort Willemweg 10", "Onbemand", 2.109, 2.319, 2.309),
+    ("Maastricht", "Shell", "Sint Annalaan 20", "Bemand", 2.199, 2.449, 2.379),
+    ("Venlo", "TinQ", "Groot Bollerweg 1", "Onbemand", 2.089, 2.299, 2.289),
+    ("Venlo", "Tango", "Nijmeegseweg 40", "Onbemand", 2.099, 2.309, 2.299),
+    ("Heerlen", "TinQ", "In de Cramer 20", "Onbemand", 2.089, 2.299, 2.289),
+    ("Roermond", "TinQ", "Mijnheerkensweg 2", "Onbemand", 2.099, 2.309, 2.299),
+    ("Weert", "TinQ", "Roermondseweg 60", "Onbemand", 2.089, 2.299, 2.289),
+    ("Sittard", "TinQ", "Nusterweg 70", "Onbemand", 2.089, 2.299, 2.289),
+    ("Kerkrade", "TinQ", "Wiebachstraat 10", "Onbemand", 2.089, 2.299, 2.289),
+
+    # Groningen
+    ("Groningen", "Fieten Olie", "Kieler Bocht 9", "Onbemand", 2.079, 2.279, 2.279),
+    ("Groningen", "TinQ", "Aduarderdiepsterweg 14", "Onbemand", 2.089, 2.299, 2.289),
+    ("Groningen", "Tango", "Peizerweg 86", "Onbemand", 2.099, 2.309, 2.299),
+    ("Groningen", "Shell", "Emmasingel 2", "Bemand", 2.189, 2.439, 2.369),
+    ("Hoogezand", "Fieten Olie", "Kerkstraat 200", "Onbemand", 2.079, 2.279, 2.279),
+    ("Stadskanaal", "TinQ", "Steenhouwer 10", "Onbemand", 2.089, 2.299, 2.289),
+    ("Veendam", "TinQ", "Van Stolbergweg 2", "Onbemand", 2.089, 2.299, 2.289),
+    ("Delfzijl", "TinQ", "Rijksweg 40", "Onbemand", 2.099, 2.309, 2.299),
+
+    # Friesland
+    ("Leeuwarden", "Fieten Olie", "Orionweg 12", "Onbemand", 2.079, 2.279, 2.279),
+    ("Leeuwarden", "TinQ", "Harlingerstraatweg 100", "Onbemand", 2.089, 2.299, 2.289),
+    ("Leeuwarden", "Shell", "Aldlansdyk 2", "Bemand", 2.189, 2.439, 2.369),
+    ("Sneek", "Fieten Olie", "Oppenhuizerweg 55", "Onbemand", 2.079, 2.279, 2.279),
+    ("Sneek", "TinQ", "Stavorenweg 2", "Onbemand", 2.089, 2.299, 2.289),
+    ("Drachten", "Fieten Olie", "Tussendiepen 15", "Onbemand", 2.079, 2.279, 2.279),
+    ("Drachten", "TinQ", "Noorderhogeweg 20", "Onbemand", 2.089, 2.299, 2.289),
+    ("Heerenveen", "Fieten Olie", "Herenwal 100", "Onbemand", 2.079, 2.279, 2.279),
+    ("Harlingen", "TinQ", "Industrieweg 2", "Onbemand", 2.089, 2.299, 2.289),
+
+    # Drenthe
+    ("Assen", "Fieten Olie", "Industrieweg 35", "Onbemand", 2.079, 2.279, 2.279),
+    ("Assen", "TinQ", "Balkenweg 1", "Onbemand", 2.089, 2.299, 2.289),
+    ("Assen", "Shell", "Groningerstraat 120", "Bemand", 2.189, 2.439, 2.369),
+    ("Emmen", "Fieten Olie", "Phileas Foggstraat 25", "Onbemand", 2.079, 2.279, 2.279),
+    ("Emmen", "TinQ", "Dordsestraat 100", "Onbemand", 2.089, 2.299, 2.289),
+    ("Meppel", "TinQ", "Blankenstein 1", "Onbemand", 2.089, 2.299, 2.289),
+    ("Hoogeveen", "Fieten Olie", "Industrieweg 60", "Onbemand", 2.079, 2.279, 2.279),
+    ("Coevorden", "TinQ", "Monierweg 5", "Onbemand", 2.089, 2.299, 2.289),
+
+    # Flevoland
+    ("Almere", "TinQ", "Markerkant 10", "Onbemand", 2.099, 2.309, 2.299),
+    ("Almere", "Tango", "Haventocht 2", "Onbemand", 2.109, 2.319, 2.309),
+    ("Almere", "Shell", "Veluwestraat 2", "Bemand", 2.199, 2.449, 2.379),
+    ("Lelystad", "TinQ", "Zuiveringweg 12", "Onbemand", 2.099, 2.309, 2.299),
+    ("Lelystad", "Tango", "Larserdreef 10", "Onbemand", 2.109, 2.319, 2.309),
+    ("Emmeloord", "Fieten Olie", "Randweg 1", "Onbemand", 2.079, 2.279, 2.279),
+    ("Dronten", "TinQ", "De Fazant 2", "Onbemand", 2.089, 2.299, 2.289),
+    ("Zeewolde", "TinQ", "Gildenveld 1", "Onbemand", 2.099, 2.309, 2.299),
+
+    # Zeeland
+    ("Middelburg", "TinQ", "Arnesteinselaan 10", "Onbemand", 2.099, 2.309, 2.299),
+    ("Middelburg", "Shell", "Podvisstraat 2", "Bemand", 2.199, 2.449, 2.379),
+    ("Vlissingen", "TinQ", "Gildeweg 15", "Onbemand", 2.099, 2.309, 2.299),
+    ("Goes", "TinQ", "Albert Joachimikade 5", "Onbemand", 2.099, 2.309, 2.299),
+    ("Goes", "Tango", "Columbusweg 2", "Onbemand", 2.109, 2.319, 2.309),
+    ("Terneuzen", "TinQ", "Handelspoort 1", "Onbemand", 2.099, 2.309, 2.299),
+    ("Zierikzee", "TinQ", "Industrieweg 10", "Onbemand", 2.109, 2.319, 2.309),
+]
+
+STATIONS = [
+    {
+        "city": c[0],
+        "name": c[1],
+        "address": c[2],
+        "type": c[3],
+        "e10": c[4],
+        "super98": c[5],
+        "diesel": c[6]
+    }
+    for c in RAW_STATIONS
 ]
 
 def build_wasm(output_path: str):
@@ -99,7 +268,7 @@ def build_wasm(output_path: str):
     # 2. Function section (ID 3): 3 functies van type 0
     func_sec = create_section(3, bytes([3, 0, 0, 0]))
 
-    # 3. Memory section (ID 5): 1 memory pagina (64KB)
+    # 3. Memory section (ID 5): 1 memory pagina (64KB is ruim voldoende voor ~25KB)
     mem_sec = create_section(5, bytes([1, 0x00, 0x01]))
 
     # 4. Export section (ID 7): exporteer memory en 3 functies
@@ -110,11 +279,8 @@ def build_wasm(output_path: str):
     export_sec = create_section(7, bytes([4]) + exp_mem + exp_f0 + exp_f1 + exp_f2)
 
     # 5. Code section (ID 10):
-    # func 0: return offset (0)
     body0 = bytes([0x00, 0x41, 0x00, 0x0B])
-    # func 1: return data_len
     body1 = bytes([0x00, 0x41]) + encode_s32(data_len) + bytes([0x0B])
-    # func 2: return count
     body2 = bytes([0x00, 0x41]) + encode_s32(count) + bytes([0x0B])
 
     code_payload = (
@@ -142,7 +308,16 @@ def build_wasm(output_path: str):
     with open(output_path, "wb") as f:
         f.write(wasm_bytes)
 
-    print(f"Succes! {output_path} gebouwd ({len(wasm_bytes)} bytes, {count} stations).")
+    b64 = base64.b64encode(wasm_bytes).decode("ascii")
+    b64_path = os.path.join(os.path.dirname(output_path), "wasm_b64.txt")
+    with open(b64_path, "w") as f:
+        f.write(b64)
+
+    unique_cities_count = len(set(s["city"] for s in STATIONS))
+    print(f"Succes! {output_path} gebouwd:")
+    print(f"  - Binary grootte: {len(wasm_bytes)} bytes")
+    print(f"  - Tankstations: {count}")
+    print(f"  - Unieke plaatsen: {unique_cities_count}")
 
 if __name__ == "__main__":
     dir_path = os.path.dirname(os.path.abspath(__file__))
