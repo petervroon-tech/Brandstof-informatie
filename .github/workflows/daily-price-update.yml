@@ -40,3 +40,4 @@ jobs:
             git commit -m "🤖 Dagelijkse automatische brandstofprijs-update ($(date +'%d-%m-%Y'))"
             git push origin main
           fi
+

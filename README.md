@@ -8,11 +8,10 @@ Een interactief, cross-platform WebAssembly dashboard voor **Brandstof-informati
   - Berekent en ververst de actuele marktprijzen en dagmutaties t.o.v. de dag ervoor voor alle 178 tankstations.
   - Hercompileert automatisch de WebAssembly-binary (`hello.wasm`), updatet `index.html` en publiceert direct via GitHub Pages.
   - Kan desgewenst ook op elk moment handmatig worden gestart via de GitHub Actions interface met de knop **"Run workflow"**.
-- **📱 Speciaal Geoptimaliseerd voor Smartphones**:
-  - **Native App Kaartweergave**: Op smartphones worden brede tabellen automatisch getransformeerd in moderne, overzichtelijke stationskaarten met een 3-koloms prijsraster en duimvriendelijke knoppen.
-  - **Zwevende Mobiele Snelle Navigatie**: Een compacte navigatiebalk onderaan het scherm om met één tik te schakelen tussen Postcode & Straal, Trendgrafiek, Stationslijst en Terug naar boven.
-  - **Mobiele Google Maps Bottom Sheet**: De routeplanner en kaart openen soepel vanaf de onderkant van het scherm.
-  - **Touch & Swipe Geoptimaliseerd**: Geen ongewenste browser-zoom bij invoervelden, grote aanraakvlakken (minimaal 44px) en directe responsiviteit bij het aanraken van de trendgrafiek.
+- **📱 Multi-Device Geoptimaliseerd (iPhone, iPad & MacBook)**:
+  - **iPhone (Staand & Liggend)**: Geen horizontale scrollbars meer; de hele lay-out sluit 100% aan op het scherm. Brede tabellen transformeren automatisch in strakke, compacte stationskaarten met een 3-koloms prijsraster. Inclusief zwevende duim-navigatiebalk onderaan en bottom-sheet Google Maps routeplanner.
+  - **iPad & Tablets**: Evenwichtige lay-out (2-koloms filters, ruimere grafiekweergave en soepele aanraakbediening).
+  - **MacBook & Desktop**: Professioneel dashboard met gecentreerde weergave (max 1180px), overzichtelijke 4-koloms statistiekenbalk en een complete 7-koloms tabel met routeplanner- en trendknoppen.
 - **WebAssembly Power**: De complete landelijke dataset (178 stations in 91 steden en dorpen inclusief dagprijzen, GPS-coördinaten, postcodes en dagverschillen) wordt rechtstreeks vanuit het lineaire geheugen van de WebAssembly-binary (`hello.wasm`) gedecodeerd.
 - **🎯 Goedkoopste Tankstation in Instelbare Cirkel rond Postcode**:
   - Voer eenvoudig een **4-cijferige postcode** (bijv. `7311`, `1012`, `3011`) of plaatsnaam in, of gebruik de knop **"📍 GPS"** voor je huidige positie.
