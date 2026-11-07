@@ -11,6 +11,9 @@ Een interactief, cross-platform WebAssembly dashboard dat actuele dagprijzen én
 - **Dynamisch Filter op Plaats**: Het dropdown-menu vult zich automatisch met alle 91 unieke plaatsen in Nederland (op alfabetische volgorde van Alkmaar en Apeldoorn tot Zwolle), plus een overzicht voor heel Nederland.
 - **Live Zoeken & Sorteren**: Sorteer op goedkoopste Euro 95, Diesel of Super 98, óf sorteer op de **sterkste dalers** om direct de grootste prijsdalingen te vinden.
 - **Statistieken Banner**: Toont direct de laagste prijs en de bijbehorende dagontwikkeling voor Euro 95, Super 98 en Diesel binnen de gekozen plaats.
+- **Google Maps & Routeplanner**: Klik op een willekeurig tankstation of op de knop **"🗺️ Kaart & Route"** (of een van de goedkoopste stations in de statistiekenbalk) om direct:
+  - Een interactieve **Google Maps kaart** van het tankstation te bekijken.
+  - Met één klik de **Google Maps Routeplanner** te starten (op desktop of mobiel) naar het adres van het tankstation.
 - **Geautomatiseerde deployment**: Direct gekoppeld aan GitHub Pages via GitHub Actions.
 
 ## 📁 Bestanden in dit project
