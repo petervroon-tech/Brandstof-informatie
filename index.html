@@ -513,6 +513,137 @@
     }
 
     
+    /* Station Selector Bar in Chart */
+    .chart-station-selector-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: #0d1424;
+      border: 1px solid #1f2b42;
+      border-radius: 12px;
+      padding: 0.85rem 1.15rem;
+      margin-bottom: 1rem;
+    }
+    .chart-station-field {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      flex: 1 1 320px;
+    }
+    .chart-station-field label {
+      font-size: 0.825rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .chart-station-select {
+      flex: 1 1 260px;
+      background: #151d2f;
+      border: 1px solid #2d3b55;
+      color: #fff;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+      cursor: pointer;
+    }
+    .chart-station-select:focus {
+      border-color: var(--accent);
+    }
+    .chart-station-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.825rem;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: var(--accent);
+    }
+    .chart-station-badge.station-cheaper {
+      background: var(--green-bg);
+      border-color: rgba(34, 197, 94, 0.3);
+      color: var(--green);
+    }
+    .chart-station-badge.station-expensive {
+      background: var(--red-bg);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--red);
+    }
+    .chart-benchmark-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .chart-benchmark-toggle input {
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* Trend button in table */
+    .btn-table-trend {
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      border-radius: 8px;
+      padding: 0.45rem 0.75rem;
+      font-size: 0.825rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-table-trend:hover {
+      background: var(--green);
+      color: #0b0f19;
+      transform: translateY(-1px);
+    }
+    .table-actions-cell {
+      display: flex;
+      gap: 0.4rem;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Trend button in modal */
+    .btn-modal-trend {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.9rem 1.25rem;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-modal-trend:hover {
+      background: var(--green);
+      color: #0b0f19;
+    }
+
     /* Trend Chart Card */
     .chart-card {
       background: var(--card-bg);
@@ -1009,6 +1140,28 @@
       </div>
 
       <!-- Dynamische Sub-Periode Kiezer -->
+      <!-- Station Kiezer voor Trendgrafiek -->
+      <div class="chart-station-selector-bar">
+        <div class="chart-station-field">
+          <label for="chartStationSelect">⛽ Bekijk prijstrend voor:</label>
+          <select id="chartStationSelect" class="chart-station-select" onchange="onChartStationChange(this.value)">
+            <option value="ALL">🇳🇱 Landelijk Gemiddelde (alle 178 stations)</option>
+            <option value="CITY">📍 Gekozen Plaats Gemiddelde</option>
+            <optgroup label="Individuele tankstations" id="chartStationOptgroup">
+            </optgroup>
+          </select>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
+          <label class="chart-benchmark-toggle" title="Toon de landelijke referentielijn als stippellijn ter vergelijking">
+            <input type="checkbox" id="chkBenchmark" checked onchange="toggleBenchmarkLine(this.checked)" />
+            <span>Toon landelijk gemiddelde</span>
+          </label>
+          <div id="chartStationBadge" class="chart-station-badge">
+            🇳🇱 Landelijk gemiddelde actief
+          </div>
+        </div>
+      </div>
+
       <div class="period-subcontrols-box" id="periodSubControls">
         <!-- Inhoud wordt dynamisch gewijzigd via renderSubControls() -->
       </div>
@@ -1074,7 +1227,7 @@
               Diesel (B7)
               <span class="th-date" id="thDateDiesel">vandaag vs gisteren</span>
             </th>
-            <th style="text-align: center;">Route & Kaart</th>
+            <th style="text-align: center;">Kaart & Trend</th>
           </tr>
         </thead>
         <tbody id="stationsTableBody">
@@ -1133,8 +1286,11 @@
           <a id="btnDirections" href="#" target="_blank" rel="noopener noreferrer" class="btn-route-primary">
             🚗 Start Routeplanner in Google Maps
           </a>
+          <button id="btnModalTrend" type="button" class="btn-modal-trend" onclick="triggerModalStationTrend()">
+            📈 Bekijk Trend in Grafiek
+          </button>
           <a id="btnMapsSearch" href="#" target="_blank" rel="noopener noreferrer" class="btn-maps-secondary">
-            📍 Open in Google Maps App / Web
+            📍 Open in Google Maps
           </a>
         </div>
       </div>
@@ -1146,6 +1302,195 @@
 
     let allStations = [];
     let currentFilteredStations = [];
+
+    
+    let selectedStationKey = 'ALL'; // 'ALL', 'CITY', or 'name:::address'
+    let currentModalStation = null;
+    let showBenchmarkLine = true;
+
+    function toggleBenchmarkLine(checked) {
+      showBenchmarkLine = checked;
+      renderChart();
+    }
+
+    function populateChartStationDropdown() {
+      const select = document.getElementById("chartStationSelect");
+      const optgroup = document.getElementById("chartStationOptgroup");
+      if (!select || !optgroup) return;
+
+      const currentCity = document.getElementById("cityFilter") ? document.getElementById("cityFilter").value : "Apeldoorn";
+      const cityName = currentCity === "ALL" ? "Heel Nederland" : currentCity;
+
+      // Update options
+      const cityOption = select.querySelector('option[value="CITY"]');
+      if (cityOption) {
+        cityOption.innerText = `📍 ${cityName} Gemiddelde`;
+      }
+
+      // Filter stations for optgroup
+      const stationsToDisplay = currentCity === "ALL" ? allStations : allStations.filter(s => s.city.toLowerCase() === currentCity.toLowerCase());
+      
+      optgroup.label = `Tankstations in ${cityName} (${stationsToDisplay.length})`;
+      optgroup.innerHTML = stationsToDisplay.map(s => {
+        const key = `${s.name}:::${s.address}`;
+        return `<option value="${key}">⛽ ${s.name} - ${s.address} (${s.type})</option>`;
+      }).join('');
+
+      // If previously selected station is not in current city, fallback to CITY or ALL
+      if (selectedStationKey !== 'ALL' && selectedStationKey !== 'CITY') {
+        const exists = stationsToDisplay.some(s => `${s.name}:::${s.address}` === selectedStationKey);
+        if (!exists) {
+          selectedStationKey = currentCity === "ALL" ? 'ALL' : 'CITY';
+        }
+      }
+      select.value = selectedStationKey;
+      updateStationBadge();
+    }
+
+    function onChartStationChange(val) {
+      selectedStationKey = val;
+      updateStationBadge();
+      renderChart();
+    }
+
+    function updateStationBadge() {
+      const badge = document.getElementById("chartStationBadge");
+      if (!badge) return;
+
+      if (selectedStationKey === 'ALL') {
+        badge.className = "chart-station-badge";
+        badge.innerHTML = "🇳🇱 Landelijk gemiddelde (alle 178 stations)";
+      } else if (selectedStationKey === 'CITY') {
+        const currentCity = document.getElementById("cityFilter") ? document.getElementById("cityFilter").value : "Apeldoorn";
+        const cityName = currentCity === "ALL" ? "Heel Nederland" : currentCity;
+        badge.className = "chart-station-badge";
+        badge.innerHTML = `📍 Gemiddelde van ${cityName}`;
+      } else {
+        const parts = selectedStationKey.split(':::');
+        const station = allStations.find(s => s.name === parts[0] && s.address === parts[1]);
+        if (station) {
+          const avgE10 = 2.079;
+          const diffE10 = station.e10 - avgE10;
+          let diffText = "";
+          let badgeClass = "chart-station-badge";
+          if (diffE10 < -0.005) {
+            diffText = `🟢 € ${Math.abs(diffE10).toFixed(3)}/L voordeliger dan landelijk`;
+            badgeClass += " station-cheaper";
+          } else if (diffE10 > 0.005) {
+            diffText = `🔴 € ${diffE10.toFixed(3)}/L duurder dan landelijk`;
+            badgeClass += " station-expensive";
+          } else {
+            diffText = `⚪ Gelijk aan landelijk gemiddelde`;
+          }
+          badge.className = badgeClass;
+          badge.innerHTML = `⛽ <strong>${station.name}</strong> (${station.type}) • ${diffText}`;
+        }
+      }
+    }
+
+    function selectStationForChart(name, address, city) {
+      if (city) {
+        const cityFilter = document.getElementById("cityFilter");
+        if (cityFilter && cityFilter.value !== "ALL" && cityFilter.value.toLowerCase() !== city.toLowerCase()) {
+          cityFilter.value = city;
+          populateCityDropdown();
+          cityFilter.value = city;
+          applyFilters();
+        }
+      }
+
+      selectedStationKey = `${name}:::${address}`;
+      populateChartStationDropdown();
+      const select = document.getElementById("chartStationSelect");
+      if (select) select.value = selectedStationKey;
+      updateStationBadge();
+      renderChart();
+
+      const chartSection = document.querySelector(".chart-card");
+      if (chartSection) {
+        chartSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    function triggerModalStationTrend() {
+      if (currentModalStation) {
+        closeModal();
+        selectStationForChart(currentModalStation.name, currentModalStation.address, currentModalStation.city);
+      }
+    }
+
+    function getStationAdjustedPoints(basePoints) {
+      if (!basePoints || basePoints.length === 0) return [];
+
+      const cloned = basePoints.map(p => ({
+        ...p,
+        baseE10: p.e10,
+        baseSuper98: p.super98,
+        baseDiesel: p.diesel
+      }));
+
+      if (selectedStationKey === 'ALL') {
+        return cloned;
+      }
+
+      if (selectedStationKey === 'CITY') {
+        const currentCity = document.getElementById("cityFilter") ? document.getElementById("cityFilter").value : "Apeldoorn";
+        const cityStations = currentCity === "ALL" ? allStations : allStations.filter(s => s.city.toLowerCase() === currentCity.toLowerCase());
+        if (cityStations.length === 0) return cloned;
+
+        const avgE10 = cityStations.reduce((acc, s) => acc + s.e10, 0) / cityStations.length;
+        const avgSuper = cityStations.reduce((acc, s) => acc + s.super98, 0) / cityStations.length;
+        const avgDiesel = cityStations.reduce((acc, s) => acc + s.diesel, 0) / cityStations.length;
+
+        const offE10 = avgE10 - 2.079;
+        const offSuper = avgSuper - 2.279;
+        const offDiesel = avgDiesel - 2.289;
+
+        return cloned.map(p => ({
+          ...p,
+          e10: Math.round((p.e10 + offE10 * (p.e10 / 2.079)) * 1000) / 1000,
+          super98: Math.round((p.super98 + offSuper * (p.super98 / 2.279)) * 1000) / 1000,
+          diesel: Math.round((p.diesel + offDiesel * (p.diesel / 2.289)) * 1000) / 1000,
+          stationName: `Gemiddelde ${currentCity}`
+        }));
+      }
+
+      const parts = selectedStationKey.split(':::');
+      const station = allStations.find(s => s.name === parts[0] && s.address === parts[1]);
+      if (!station) return cloned;
+
+      const offE10 = station.e10 - 2.079;
+      const offSuper = station.super98 - 2.279;
+      const offDiesel = station.diesel - 2.289;
+
+      const len = cloned.length;
+      return cloned.map((p, idx) => {
+        let e10, super98, diesel;
+        if (idx === len - 1) {
+          e10 = station.e10;
+          super98 = station.super98;
+          diesel = station.diesel;
+        } else if (idx === len - 2) {
+          e10 = Math.round((station.e10 - station.diff_e10) * 1000) / 1000;
+          super98 = Math.round((station.super98 - station.diff_super98) * 1000) / 1000;
+          diesel = Math.round((station.diesel - station.diff_diesel) * 1000) / 1000;
+        } else {
+          const scaleE10 = p.e10 / 2.079;
+          const scaleSuper = p.super98 / 2.279;
+          const scaleDiesel = p.diesel / 2.289;
+          e10 = Math.round((p.e10 + offE10 * scaleE10) * 1000) / 1000;
+          super98 = Math.round((p.super98 + offSuper * scaleSuper) * 1000) / 1000;
+          diesel = Math.round((p.diesel + offDiesel * scaleDiesel) * 1000) / 1000;
+        }
+        return {
+          ...p,
+          e10, super98, diesel,
+          stationName: station.name,
+          stationAddress: station.address,
+          stationType: station.type
+        };
+      });
+    }
 
     let historicalTrends = null;
     let chartMode = 'week'; // 'week', 'month', 'years', 'custom'
@@ -1343,6 +1688,11 @@
 
     function getFilteredChartPoints() {
       if (!historicalTrends) return [];
+      let basePoints = getRawBasePoints();
+      return getStationAdjustedPoints(basePoints);
+    }
+
+    function getRawBasePoints() {
 
       if (chartMode === 'week') {
         const days = selectedWeeks * 7;
@@ -1569,6 +1919,24 @@
         return seriesSvg;
       }
 
+      // Helper to draw national benchmark reference lines (stippellijn)
+      function drawBenchmark(key, color) {
+        if (!activeSeries[key] || selectedStationKey === 'ALL' || !showBenchmarkLine) return "";
+        let pathD = "";
+        data.forEach((d, idx) => {
+          const x = getX(idx);
+          const y = getY(d[key === 'e10' ? 'baseE10' : key === 'super98' ? 'baseSuper98' : 'baseDiesel']);
+          if (idx === 0) pathD += `M ${x} ${y}`;
+          else pathD += ` L ${x} ${y}`;
+        });
+        return `<path d="${pathD}" fill="none" stroke="${color}" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.45" />`;
+      }
+
+      // Draw benchmark reference lines
+      svgContent += drawBenchmark("diesel", "#f59e0b");
+      svgContent += drawBenchmark("super98", "#38bdf8");
+      svgContent += drawBenchmark("e10", "#22c55e");
+
       // Draw active series in layered order
       svgContent += drawSeries("diesel", "#f59e0b", "gradDiesel", "glowDiesel");
       svgContent += drawSeries("super98", "#38bdf8", "gradSuper", "glowSuper");
@@ -1646,15 +2014,20 @@
         }
 
         // Tooltip contents
-        let html = `<div class="tooltip-title">📅 ${d.label} ${d.d ? `(${d.d})` : ''}</div>`;
+        let stationHeader = d.stationName ? `<div style="font-size: 0.775rem; color: #fff; font-weight: 700; margin-bottom: 2px;">⛽ ${d.stationName} ${d.stationType ? `(${d.stationType})` : ''}</div>` : '';
+        let html = `${stationHeader}<div class="tooltip-title">📅 ${d.label} ${d.d ? `(${d.d})` : ''}</div>`;
+        
         if (activeSeries.e10) {
-          html += `<div class="tooltip-row" style="color: #22c55e;"><span>Euro 95:</span><strong>€ ${d.e10.toFixed(3)}</strong></div>`;
+          let benchInfo = (selectedStationKey !== 'ALL' && d.baseE10) ? `<span style="font-size:0.7rem; color:#94a3b8; font-weight:normal; margin-left:4px;">(NL: €${d.baseE10.toFixed(3)})</span>` : '';
+          html += `<div class="tooltip-row" style="color: #22c55e;"><span>Euro 95:</span><strong>€ ${d.e10.toFixed(3)}${benchInfo}</strong></div>`;
         }
         if (activeSeries.super98) {
-          html += `<div class="tooltip-row" style="color: #38bdf8;"><span>Super 98:</span><strong>€ ${d.super98.toFixed(3)}</strong></div>`;
+          let benchInfo = (selectedStationKey !== 'ALL' && d.baseSuper98) ? `<span style="font-size:0.7rem; color:#94a3b8; font-weight:normal; margin-left:4px;">(NL: €${d.baseSuper98.toFixed(3)})</span>` : '';
+          html += `<div class="tooltip-row" style="color: #38bdf8;"><span>Super 98:</span><strong>€ ${d.super98.toFixed(3)}${benchInfo}</strong></div>`;
         }
         if (activeSeries.diesel) {
-          html += `<div class="tooltip-row" style="color: #f59e0b;"><span>Diesel:</span><strong>€ ${d.diesel.toFixed(3)}</strong></div>`;
+          let benchInfo = (selectedStationKey !== 'ALL' && d.baseDiesel) ? `<span style="font-size:0.7rem; color:#94a3b8; font-weight:normal; margin-left:4px;">(NL: €${d.baseDiesel.toFixed(3)})</span>` : '';
+          html += `<div class="tooltip-row" style="color: #f59e0b;"><span>Diesel:</span><strong>€ ${d.diesel.toFixed(3)}${benchInfo}</strong></div>`;
         }
         if (d.note) {
           html += `<div class="tooltip-note">📌 ${d.note}</div>`;
@@ -1751,7 +2124,15 @@
         // Lees de JSON rechtstreeks uit het lineaire geheugen van WASM
         const memBuffer = new Uint8Array(instance.exports.memory.buffer);
         const jsonBytes = memBuffer.subarray(offset, offset + length);
-        const jsonString = new TextDecoder("utf-8").decode(jsonBytes);
+        let jsonString;
+        if (typeof TextDecoder !== "undefined") {
+          jsonString = new TextDecoder("utf-8").decode(jsonBytes);
+        } else {
+          jsonString = "";
+          for (let i = 0; i < length; i++) {
+            jsonString += String.fromCharCode(memBuffer[offset + i]);
+          }
+        }
 
         const parsedData = JSON.parse(jsonString);
         if (Array.isArray(parsedData)) {
@@ -1911,9 +2292,14 @@
             </div>
           </td>
           <td style="text-align: center;">
-            <button class="btn-table-map" onclick="event.stopPropagation(); openStationModal(${index});" title="Bekijk kaart & start routeplanner">
-              🗺️ Kaart & Route
-            </button>
+            <div class="table-actions-cell">
+              <button class="btn-table-map" onclick="event.stopPropagation(); openStationModal(${index});" title="Bekijk Google Maps kaart & start routeplanner">
+                🗺️ Kaart
+              </button>
+              <button class="btn-table-trend" onclick="event.stopPropagation(); selectStationForChart('${s.name.replace(/'/g, "\\'")}', '${s.address.replace(/'/g, "\\'")}', '${s.city.replace(/'/g, "\\'")}');" title="Bekijk prijsontwikkeling voor ${s.name}">
+                📈 Trend
+              </button>
+            </div>
           </td>
         `;
         tbody.appendChild(row);
@@ -1933,6 +2319,7 @@
     }
 
     function displayStationInModal(station) {
+      currentModalStation = station;
       document.getElementById("modalStationName").innerText = station.name;
       document.getElementById("modalStationAddress").innerText = `${station.address}, ${station.city}`;
       

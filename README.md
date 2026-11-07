@@ -11,14 +11,15 @@ Een interactief, cross-platform WebAssembly dashboard dat actuele dagprijzen én
 - **Dynamisch Filter op Plaats**: Het dropdown-menu vult zich automatisch met alle 91 unieke plaatsen in Nederland (op alfabetische volgorde van Alkmaar en Apeldoorn tot Zwolle), plus een overzicht voor heel Nederland.
 - **Live Zoeken & Sorteren**: Sorteer op goedkoopste Euro 95, Diesel of Super 98, óf sorteer op de **sterkste dalers** om direct de grootste prijsdalingen te vinden.
 - **Statistieken Banner**: Toont direct de laagste prijs en de bijbehorende dagontwikkeling voor Euro 95, Super 98 en Diesel binnen de gekozen plaats.
-- **Flexibel Instelbare Trendgrafiek (Lijngrafiek)**:
+- **Flexibel Instelbare Trendgrafiek (Lijngrafiek) — Landelijk, per Plaats én per Tankstation**:
+  - **Prijsverloop per Tankstation**: Kies in de grafiek elk willekeurig tankstation (of klik op **"📈 Trend"** in de tabel of in de Google Maps pop-up) om het specifieke prijsverloop van dat tankstation over de tijd te zien, inclusief vergelijking met het landelijk gemiddelde (met optionele referentiestippellijn).
   - Stel **volledig zelf de gewenste periode in** met interactieve schuifbalken en snelle presets:
     - 📅 **Per Week**: Kies zelf het gewenste aantal weken (1 t/m 52 weken, bijv. 1 wk, 2 wk, 4 wk, 12 wk) met live schuifbalk en datumbereik.
     - 🗓️ **Per Maand**: Kies zelf het aantal maanden (1 t/m 83 maanden, bijv. 1 mnd, 3 mnd, 6 mnd, 12 mnd, 24 mnd of alles 2020-2026).
     - 📊 **Per Jaar**: Kies zelf het begin- en eindjaar (bijv. 2021-2023, 2024-2026 of de volledige historie 2020-2026) inclusief historische mijlpalen (coronacrisis dip, energiecrisis piek en accijnsverlagingen).
     - ⚙️ **Aangepaste Datumreeks**: Kies met datumkiezers letterlijk elke gewenste begindatum en einddatum.
   - Aan/uit schakelbare lijnen per brandstof (Euro 95 E10, Super 98 E5, Diesel B7).
-  - Interactieve tooltip met richtkruis, exacte prijzen en historische context per peildatum.
+  - Interactieve tooltip met richtkruis, exacte stationsprijzen en landelijke benchmarkvergelijking.
 - **Google Maps & Routeplanner**: Klik op een willekeurig tankstation of op de knop **"🗺️ Kaart & Route"** (of een van de goedkoopste stations in de statistiekenbalk) om direct:
   - Een interactieve **Google Maps kaart** van het tankstation te bekijken.
   - Met één klik de **Google Maps Routeplanner** te starten (op desktop of mobiel) naar het adres van het tankstation.
