@@ -12,7 +12,7 @@
 
   (func (export "get_data_len") (result i32)
     ;; Geeft de exacte lengte van de JSON-data in bytes terug
-    i32.const 85098
+    i32.const 94670
   )
 
   (func (export "get_station_count") (result i32)

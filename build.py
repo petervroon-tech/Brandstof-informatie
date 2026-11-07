@@ -252,13 +252,126 @@ def get_diffs(idx, name, stype):
     p3 = pattern[(idx * 7 + len(name) + len(stype)) % len(pattern)]
     return p1, p2, p3
 
+
+CITY_COORDS = {
+    "Apeldoorn": (52.2112, 5.9699, "7311"),
+    "Arnhem": (51.9851, 5.8987, "6811"),
+    "Nijmegen": (51.8426, 5.8596, "6511"),
+    "Ede": (52.0442, 5.6667, "6711"),
+    "Wageningen": (51.9692, 5.6653, "6701"),
+    "Zutphen": (52.1400, 6.1960, "7201"),
+    "Harderwijk": (52.3425, 5.6200, "3841"),
+    "Barneveld": (52.1433, 5.5844, "3771"),
+    "Tiel": (51.8867, 5.4319, "4001"),
+    "Doetinchem": (51.9653, 6.2889, "7001"),
+    "Culemborg": (51.9547, 5.2272, "4101"),
+    "Wijchen": (51.8089, 5.7233, "6601"),
+    "Zwolle": (52.5168, 6.0830, "8011"),
+    "Deventer": (52.2550, 6.1625, "7411"),
+    "Enschede": (52.2215, 6.8937, "7511"),
+    "Hengelo": (52.2658, 6.7931, "7551"),
+    "Almelo": (52.3567, 6.6631, "7601"),
+    "Kampen": (52.5550, 5.9122, "8261"),
+    "Hardenberg": (52.5758, 6.6192, "7771"),
+    "Steenwijk": (52.7889, 6.1206, "8331"),
+    "Utrecht": (52.0907, 5.1214, "3511"),
+    "Amersfoort": (52.1561, 5.3878, "3811"),
+    "Veenendaal": (52.0294, 5.5550, "3901"),
+    "Zeist": (52.0911, 5.2333, "3701"),
+    "Nieuwegein": (52.0289, 5.0847, "3431"),
+    "Woerden": (52.0858, 4.8839, "3441"),
+    "Houten": (52.0278, 5.1694, "3991"),
+    "Soest": (52.1742, 5.2936, "3761"),
+    "Amsterdam": (52.3676, 4.9041, "1012"),
+    "Haarlem": (52.3874, 4.6462, "2011"),
+    "Alkmaar": (52.6324, 4.7534, "1811"),
+    "Hilversum": (52.2292, 5.1669, "1211"),
+    "Hoorn": (52.6425, 5.0597, "1621"),
+    "Zaandam": (52.4420, 4.8292, "1501"),
+    "Purmerend": (52.5050, 4.9600, "1441"),
+    "Den Helder": (52.9599, 4.7593, "1781"),
+    "Amstelveen": (52.3081, 4.8631, "1181"),
+    "Heerhugowaard": (52.6689, 4.8400, "1701"),
+    "Rotterdam": (51.9244, 4.4777, "3011"),
+    "Den Haag": (52.0705, 4.3007, "2511"),
+    "Leiden": (52.1601, 4.4970, "2311"),
+    "Dordrecht": (51.8133, 4.6900, "3311"),
+    "Gouda": (52.0167, 4.7083, "2801"),
+    "Delft": (52.0116, 4.3571, "2611"),
+    "Alphen aan den Rijn": (52.1292, 4.6550, "2401"),
+    "Schiedam": (51.9197, 4.3992, "3111"),
+    "Zoetermeer": (52.0607, 4.4939, "2711"),
+    "Spijkenisse": (51.8475, 4.3283, "3201"),
+    "Vlaardingen": (51.9125, 4.3417, "3131"),
+    "Eindhoven": (51.4416, 5.4697, "5611"),
+    "Tilburg": (51.5555, 5.0913, "5011"),
+    "Breda": (51.5719, 4.7683, "4811"),
+    "'s-Hertogenbosch": (51.6978, 5.3037, "5211"),
+    "Helmond": (51.4817, 5.6611, "5701"),
+    "Roosendaal": (51.5308, 4.4653, "4701"),
+    "Bergen op Zoom": (51.4947, 4.2928, "4611"),
+    "Oss": (51.7650, 5.5181, "5341"),
+    "Oosterhout": (51.6444, 4.8639, "4901"),
+    "Waalwijk": (51.6869, 5.0700, "5141"),
+    "Maastricht": (50.8514, 5.6910, "6211"),
+    "Venlo": (51.3700, 6.1681, "5911"),
+    "Heerlen": (50.8882, 5.9795, "6411"),
+    "Roermond": (51.1942, 5.9875, "6041"),
+    "Weert": (51.2517, 5.7069, "6001"),
+    "Sittard": (50.9983, 5.8697, "6131"),
+    "Kerkrade": (50.8658, 6.0625, "6461"),
+    "Groningen": (53.2194, 6.5665, "9711"),
+    "Hoogezand": (53.1611, 6.7583, "9601"),
+    "Stadskanaal": (52.9897, 6.9536, "9501"),
+    "Veendam": (53.1092, 6.9242, "9641"),
+    "Delfzijl": (53.3314, 6.9244, "9931"),
+    "Leeuwarden": (53.2012, 5.7999, "8911"),
+    "Sneek": (53.0322, 5.6600, "8601"),
+    "Drachten": (53.1067, 6.1000, "9201"),
+    "Heerenveen": (52.9567, 5.9281, "8441"),
+    "Harlingen": (53.1744, 5.4264, "8861"),
+    "Emmen": (52.7792, 6.9069, "7811"),
+    "Assen": (52.9928, 6.5642, "9401"),
+    "Hoogeveen": (52.7275, 6.4786, "7901"),
+    "Meppel": (52.6953, 6.1944, "7941"),
+    "Coevorden": (52.6617, 6.7417, "7741"),
+    "Almere": (52.3702, 5.2141, "1311"),
+    "Lelystad": (52.5185, 5.4714, "8224"),
+    "Dronten": (52.5250, 5.7167, "8251"),
+    "Emmeloord": (52.7108, 5.7486, "8301"),
+    "Zeewolde": (52.3308, 5.5414, "3891"),
+    "Middelburg": (51.4989, 3.6108, "4331"),
+    "Vlissingen": (51.4425, 3.5736, "4381"),
+    "Goes": (51.5042, 3.8889, "4461"),
+    "Terneuzen": (51.3317, 3.8292, "4531"),
+    "Zierikzee": (51.6497, 3.9167, "4301")
+}
+
+def get_station_coords(city, idx, name, address, stype):
+    base_lat, base_lng, base_pc = CITY_COORDS.get(city, (52.2112, 5.9699, "7311"))
+    lat_offset = (((idx * 17 + len(address)) % 23) - 11) * 0.0016
+    lng_offset = (((idx * 29 + len(name)) % 23) - 11) * 0.0026
+    if stype == "Snelweg":
+        lat_offset += 0.022
+        lng_offset += 0.018
+    station_lat = round(base_lat + lat_offset, 5)
+    station_lng = round(base_lng + lng_offset, 5)
+    pc_num = int(base_pc) + (idx % 25)
+    pc_letters = chr(65 + ((idx * 3) % 26)) + chr(65 + ((idx * 7 + 5) % 26))
+    postcode = f"{pc_num} {pc_letters}"
+    return station_lat, station_lng, postcode
+
 STATIONS = []
 for idx, c in enumerate(RAW_STATIONS):
     d_e10, d_super, d_diesel = get_diffs(idx, c[1], c[3])
+    s_lat, s_lng, s_postcode = get_station_coords(c[0], idx, c[1], c[2], c[3])
     STATIONS.append({
         "city": c[0],
         "name": c[1],
         "address": c[2],
+        "postcode": s_postcode,
+        "lat": s_lat,
+        "lng": s_lng,
         "type": c[3],
         "e10": c[4],
         "super98": c[5],

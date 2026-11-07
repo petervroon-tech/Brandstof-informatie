@@ -3,7 +3,14 @@
 Een interactief, cross-platform WebAssembly dashboard voor **Brandstof-informatie in Nederland**: actuele dagprijzen én het dagelijkse prijsverschil met de dag ervoor voor **Super (Euro 95 E10 & Super 98 E5)** en **Diesel (B7)** in **91 plaatsen (178 tankstations)** door heel Nederland (alle 12 provincies).
 
 ## 🚀 Kenmerken
-- **WebAssembly Power**: De complete landelijke dataset (178 stations in 91 steden en dorpen inclusief dagprijzen en dagverschillen) wordt rechtstreeks vanuit het lineaire geheugen van de WebAssembly-binary (`hello.wasm`) gedecodeerd.
+- **WebAssembly Power**: De complete landelijke dataset (178 stations in 91 steden en dorpen inclusief dagprijzen, GPS-coördinaten, postcodes en dagverschillen) wordt rechtstreeks vanuit het lineaire geheugen van de WebAssembly-binary (`hello.wasm`) gedecodeerd.
+- **🎯 Goedkoopste Tankstation in Instelbare Cirkel rond Postcode**:
+  - Voer eenvoudig een **4-cijferige postcode** (bijv. `7311`, `1012`, `3011`) of plaatsnaam in, of gebruik de knop **"📍 GPS"** voor je huidige positie.
+  - Stel de gewenste **zoekstraal (cirkel in km)** in met de soepele schuifregelaar (1 t/m 50 km) of kies met één klik een snelle preset: **3 km, 5 km, 10 km, 15 km, 25 km of 50 km**.
+  - Kies de gewenste brandstof (**Euro 95 E10, Diesel B7 of Super 98 E5**).
+  - De applicatie berekent met de **Haversine-afstandsformule** direct de exacte afstand (vogelvlucht) naar elk station en presenteert de **🏆 Winnaar (Nr. 1 Goedkoopste Tankstation in de cirkel)** in een opvallende goud/groene banner inclusief berekende besparing per liter en op een volle tank van 50 liter.
+  - Alle tankstations in de cirkel worden getoond met een afstandsbadge (`📍 X.X km`) en gesorteerd op de laagste prijs of op afstand.
+  - Start vanaf de winnaar direct de **Google Maps Routeplanner** of bekijk zijn historische prijstrend.
 - **Prijsverschil met gisteren**: Onder elke prijs staat direct een visuele badge:
   - 🟢 **▼ -0.015**: Prijs gedaald t.o.v. gisteren (goedkoper).
   - 🔴 **▲ +0.010**: Prijs gestegen t.o.v. gisteren (duurder).
