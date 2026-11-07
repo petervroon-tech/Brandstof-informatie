@@ -2155,7 +2155,7 @@
       <div class="badge">
         <span>Peter Vroon</span>
         <span style="opacity: 0.5;">•</span>
-        <span style="background: rgba(56, 189, 248, 0.2); padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; letter-spacing: 0.02em;">v2.2.0</span>
+        <span style="background: rgba(56, 189, 248, 0.2); padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; letter-spacing: 0.02em;">v2.3.0</span>
       </div>
       <h1>Brandstof-informatie Nederland</h1>
       <p class="subtitle">
@@ -2232,7 +2232,10 @@
         <div class="radius-field">
           <label for="radiusPostcodeInput">
             <span>📍 Postcode of Plaats</span>
-            <span style="font-size: 0.725rem; color: var(--accent); font-weight: 600;">↵ Druk op Enter</span>
+            <span style="display: inline-flex; align-items: center; gap: 0.35rem;">
+              <span id="savedIndicator" style="display: none; font-size: 0.7rem; color: var(--green); font-weight: 700;">💾 Opgeslagen</span>
+              <span style="font-size: 0.725rem; color: var(--accent); font-weight: 600;">↵ Druk op Enter</span>
+            </span>
           </label>
           <div class="radius-input-group">
             <input type="text" id="radiusPostcodeInput" class="radius-input" placeholder="bijv. 7311 of Apeldoorn" value="7311" onkeydown="handlePostcodeKey(event)" />
@@ -2244,7 +2247,7 @@
             </button>
           </div>
           <div class="radius-hint">
-            <span>ℹ️</span> <em>Druk na het invullen op <strong>Enter</strong> (of klik op <strong>Zoek</strong>) om te bevestigen.</em>
+            <span>ℹ️</span> <em>Druk na het invullen op <strong>Enter</strong> om te bevestigen (wordt automatisch onthouden).</em>
           </div>
         </div>
 
@@ -2447,7 +2450,7 @@
 
     <footer>
       <div>💡 <em>Klik op een tankstation of de knop <strong>🗺️ Kaart & Route</strong> om het Google Maps kaartje en de routeplanner te openen.</em></div>
-      <div>Brandstof-informatie Nederland • Peter Vroon • Versie 2.2.0</div>
+      <div>Brandstof-informatie Nederland • Peter Vroon • Versie 2.3.0</div>
     </footer>
   </div>
 
@@ -3488,6 +3491,17 @@
       return null;
     }
 
+    function showSavedIndicator() {
+      const ind = document.getElementById("savedIndicator");
+      if (ind) {
+        ind.style.display = "inline";
+        clearTimeout(window._saveTimer);
+        window._saveTimer = setTimeout(() => {
+          ind.style.display = "none";
+        }, 3000);
+      }
+    }
+
     function handlePostcodeKey(e) {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -3503,6 +3517,10 @@
       if (resolved) {
         radiusCenter = resolved;
         radiusSearchActive = true;
+        try {
+          localStorage.setItem("brandstof_saved_postcode", val);
+          showSavedIndicator();
+        } catch (e) {}
         executeRadiusSearch();
         if (inputEl) inputEl.blur();
       } else {
@@ -3514,6 +3532,7 @@
       radiusKm = parseInt(val, 10);
       document.getElementById("radiusValBadge").innerText = `${radiusKm} km`;
       updateRadiusPillHighlight();
+      try { localStorage.setItem("brandstof_saved_radius", radiusKm); } catch (e) {}
       radiusSearchActive = true;
       executeRadiusSearch();
     }
@@ -3523,6 +3542,7 @@
       document.getElementById("radiusRange").value = km;
       document.getElementById("radiusValBadge").innerText = `${km} km`;
       updateRadiusPillHighlight();
+      try { localStorage.setItem("brandstof_saved_radius", km); } catch (e) {}
       radiusSearchActive = true;
       executeRadiusSearch();
     }
@@ -3540,6 +3560,7 @@
 
     function setRadiusFuelType(type) {
       radiusFuelType = type;
+      try { localStorage.setItem("brandstof_saved_fuel", type); } catch (e) {}
       document.getElementById("btnRadiusE10").className = `radius-fuel-btn ${type === 'e10' ? 'active-e10' : ''}`;
       document.getElementById("btnRadiusDiesel").className = `radius-fuel-btn ${type === 'diesel' ? 'active-diesel' : ''}`;
       document.getElementById("btnRadiusSuper").className = `radius-fuel-btn ${type === 'super98' ? 'active-super' : ''}`;
@@ -3581,7 +3602,12 @@
             lng: userLng,
             name: `Mijn Locatie (~${nearestCity})`
           };
-          document.getElementById("radiusPostcodeInput").value = nearestCity.split(" ")[0];
+          const locName = nearestCity.split(" ")[0];
+          document.getElementById("radiusPostcodeInput").value = locName;
+          try {
+            localStorage.setItem("brandstof_saved_postcode", locName);
+            showSavedIndicator();
+          } catch (e) {}
           radiusSearchActive = true;
           executeRadiusSearch();
         },
@@ -3805,10 +3831,50 @@
         populateCityDropdown();
         renderSubControls();
         renderChart();
+        loadSavedPreferences();
         executeRadiusSearch();
       } catch (err) {
         console.error("Fout bij inladen via WebAssembly:", err);
       }
+    }
+
+    function loadSavedPreferences() {
+      try {
+        const savedPc = localStorage.getItem("brandstof_saved_postcode");
+        if (savedPc) {
+          const inputEl = document.getElementById("radiusPostcodeInput");
+          if (inputEl) inputEl.value = savedPc;
+          const resolved = resolveLocation(savedPc);
+          if (resolved) {
+            radiusCenter = resolved;
+            showSavedIndicator();
+          }
+        }
+        const savedRadius = localStorage.getItem("brandstof_saved_radius");
+        if (savedRadius) {
+          const parsed = parseInt(savedRadius, 10);
+          if (!isNaN(parsed) && parsed >= 1 && parsed <= 50) {
+            radiusKm = parsed;
+            const slider = document.getElementById("radiusRange");
+            if (slider) slider.value = radiusKm;
+            const badge = document.getElementById("radiusValBadge");
+            if (badge) badge.innerText = `${radiusKm} km`;
+            updateRadiusPillHighlight();
+          }
+        }
+        const savedFuel = localStorage.getItem("brandstof_saved_fuel");
+        if (savedFuel && ['e10', 'diesel', 'super98'].includes(savedFuel)) {
+          radiusFuelType = savedFuel;
+          const btnE10 = document.getElementById("btnRadiusE10");
+          const btnDiesel = document.getElementById("btnRadiusDiesel");
+          const btnSuper = document.getElementById("btnRadiusSuper");
+          if (btnE10) btnE10.className = `radius-fuel-btn ${savedFuel === 'e10' ? 'active-e10' : ''}`;
+          if (btnDiesel) btnDiesel.className = `radius-fuel-btn ${savedFuel === 'diesel' ? 'active-diesel' : ''}`;
+          if (btnSuper) btnSuper.className = `radius-fuel-btn ${savedFuel === 'super98' ? 'active-super' : ''}`;
+          const sortSelect = document.getElementById("sortBy");
+          if (sortSelect) sortSelect.value = savedFuel;
+        }
+      } catch (e) {}
     }
 
     function populateCityDropdown() {
