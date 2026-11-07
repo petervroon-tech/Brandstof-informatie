@@ -1146,6 +1146,37 @@
       border-color: var(--accent);
       color: #fff;
     }
+    .btn-confirm-postcode {
+      background: var(--accent);
+      color: #0b0f19;
+      border: none;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-confirm-postcode:hover {
+      background: #7dd3fc;
+      transform: translateY(-1px);
+    }
+    .radius-hint {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.25rem;
+      line-height: 1.35;
+    }
+    .radius-hint strong {
+      color: var(--accent);
+    }
     .radius-slider-wrap {
       display: flex;
       flex-direction: column;
@@ -1708,6 +1739,13 @@
         padding: 0.7rem 0.85rem;
         min-height: 44px;
       }
+      .btn-confirm-postcode {
+        padding: 0.7rem 0.85rem;
+        min-height: 44px;
+      }
+      .radius-hint {
+        font-size: 0.72rem;
+      }
       .slider-input {
         height: 10px;
         width: 100%;
@@ -2117,7 +2155,7 @@
       <div class="badge">
         <span>Peter Vroon</span>
         <span style="opacity: 0.5;">•</span>
-        <span style="background: rgba(56, 189, 248, 0.2); padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; letter-spacing: 0.02em;">v2.1.0</span>
+        <span style="background: rgba(56, 189, 248, 0.2); padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; letter-spacing: 0.02em;">v2.2.0</span>
       </div>
       <h1>Brandstof-informatie Nederland</h1>
       <p class="subtitle">
@@ -2194,13 +2232,19 @@
         <div class="radius-field">
           <label for="radiusPostcodeInput">
             <span>📍 Postcode of Plaats</span>
-            <span style="font-size: 0.7rem; color: #64748b; font-weight: normal;">(bijv. 7311 of Apeldoorn)</span>
+            <span style="font-size: 0.725rem; color: var(--accent); font-weight: 600;">↵ Druk op Enter</span>
           </label>
           <div class="radius-input-group">
-            <input type="text" id="radiusPostcodeInput" class="radius-input" placeholder="7311 of plaatsnaam" value="7311" oninput="onRadiusInputChanged()" />
+            <input type="text" id="radiusPostcodeInput" class="radius-input" placeholder="bijv. 7311 of Apeldoorn" value="7311" onkeydown="handlePostcodeKey(event)" />
+            <button class="btn-confirm-postcode" onclick="confirmPostcode()" title="Bevestig postcode (of druk op Enter)">
+              ↵ Zoek
+            </button>
             <button class="btn-gps" onclick="useCurrentLocation()" title="Gebruik huidige GPS locatie">
               📍 GPS
             </button>
+          </div>
+          <div class="radius-hint">
+            <span>ℹ️</span> <em>Druk na het invullen op <strong>Enter</strong> (of klik op <strong>Zoek</strong>) om te bevestigen.</em>
           </div>
         </div>
 
@@ -2403,7 +2447,7 @@
 
     <footer>
       <div>💡 <em>Klik op een tankstation of de knop <strong>🗺️ Kaart & Route</strong> om het Google Maps kaartje en de routeplanner te openen.</em></div>
-      <div>Brandstof-informatie Nederland • Peter Vroon • Versie 2.1.0</div>
+      <div>Brandstof-informatie Nederland • Peter Vroon • Versie 2.2.0</div>
     </footer>
   </div>
 
@@ -3444,17 +3488,26 @@
       return null;
     }
 
-    function onRadiusInputChanged() {
-      clearTimeout(radiusInputDebounce);
-      radiusInputDebounce = setTimeout(() => {
-        const val = document.getElementById("radiusPostcodeInput").value;
-        const resolved = resolveLocation(val);
-        if (resolved) {
-          radiusCenter = resolved;
-          radiusSearchActive = true;
-          executeRadiusSearch();
-        }
-      }, 350);
+    function handlePostcodeKey(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        confirmPostcode();
+      }
+    }
+
+    function confirmPostcode() {
+      const inputEl = document.getElementById("radiusPostcodeInput");
+      const val = inputEl ? inputEl.value.trim() : "";
+      if (!val) return;
+      const resolved = resolveLocation(val);
+      if (resolved) {
+        radiusCenter = resolved;
+        radiusSearchActive = true;
+        executeRadiusSearch();
+        if (inputEl) inputEl.blur();
+      } else {
+        alert("Postcode of plaats '" + val + "' niet gevonden. Voer een 4-cijferige postcode (bijv. 7311) of geldige plaatsnaam in en druk op Enter.");
+      }
     }
 
     function onRadiusSliderChanged(val) {
