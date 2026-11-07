@@ -1,6 +1,9 @@
-# Brandstof-informatie (WebAssembly)
+# Brandstof-informatie v2.1.0
 
 Een interactief, cross-platform WebAssembly dashboard voor **Brandstof-informatie in Nederland**: actuele dagprijzen én het dagelijkse prijsverschil met de dag ervoor voor **Super (Euro 95 E10 & Super 98 E5)** en **Diesel (B7)** in **91 plaatsen (178 tankstations)** door heel Nederland (alle 12 provincies).
+
+**Auteur:** Peter Vroon  
+**Versie:** 2.1.0
 
 ## 🚀 Kenmerken
 - **🔄 Volautomatische Dagelijkse Prijsupdater (GitHub Actions)**:
