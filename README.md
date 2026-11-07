@@ -1,18 +1,22 @@
 # Brandstofprijzen Nederland (WebAssembly)
 
-Een interactief, cross-platform WebAssembly dashboard dat actuele dagprijzen toont voor **Super (Euro 95 E10 & Super 98 E5)** en **Diesel (B7)** in **91 plaatsen (178 tankstations)** door heel Nederland (alle 12 provincies).
+Een interactief, cross-platform WebAssembly dashboard dat actuele dagprijzen én het dagelijkse prijsverschil met de dag ervoor toont voor **Super (Euro 95 E10 & Super 98 E5)** en **Diesel (B7)** in **91 plaatsen (178 tankstations)** door heel Nederland (alle 12 provincies).
 
 ## 🚀 Kenmerken
-- **WebAssembly Power**: De complete landelijke dataset (178 stations in 91 steden en dorpen) wordt rechtstreeks vanuit het lineaire geheugen van de WebAssembly-binary (`hello.wasm`) gedecodeerd.
+- **WebAssembly Power**: De complete landelijke dataset (178 stations in 91 steden en dorpen inclusief dagprijzen en dagverschillen) wordt rechtstreeks vanuit het lineaire geheugen van de WebAssembly-binary (`hello.wasm`) gedecodeerd.
+- **Prijsverschil met gisteren**: Onder elke prijs staat direct een visuele badge:
+  - 🟢 **▼ -0.015**: Prijs gedaald t.o.v. gisteren (goedkoper).
+  - 🔴 **▲ +0.010**: Prijs gestegen t.o.v. gisteren (duurder).
+  - ⚪ **= 0.000**: Prijs ongewijzigd.
 - **Dynamisch Filter op Plaats**: Het dropdown-menu vult zich automatisch met alle 91 unieke plaatsen in Nederland (op alfabetische volgorde van Alkmaar en Apeldoorn tot Zwolle), plus een overzicht voor heel Nederland.
-- **Live Zoeken & Sorteren**: Zoek op plaats, straat of merk (Fieten Olie, TinQ, Tango, Shell, BP, Esso, AVIA) en sorteer op de voordeligste prijs.
-- **Statistieken Banner**: Toont direct de laagste prijs voor Euro 95, Super 98 en Diesel binnen de gekozen plaats.
+- **Live Zoeken & Sorteren**: Sorteer op goedkoopste Euro 95, Diesel of Super 98, óf sorteer op de **sterkste dalers** om direct de grootste prijsdalingen te vinden.
+- **Statistieken Banner**: Toont direct de laagste prijs en de bijbehorende dagontwikkeling voor Euro 95, Super 98 en Diesel binnen de gekozen plaats.
 - **Geautomatiseerde deployment**: Direct gekoppeld aan GitHub Pages via GitHub Actions.
 
 ## 📁 Bestanden in dit project
 - `hello.wat` - De WebAssembly broncode in tekstformaat (WAT).
-- `build.py` - Compilatiescript met de landelijke dataset (12 provincies).
-- `hello.wasm` - De gecompileerde WebAssembly binary (24.741 bytes).
+- `build.py` - Compilatiescript met de landelijke dataset en dagverschilberekeningen.
+- `hello.wasm` - De gecompileerde WebAssembly binary (36.068 bytes).
 - `index.html` - De interactieve webapp.
 - `.github/workflows/deploy.yml` - GitHub Actions workflow voor GitHub Pages.
 
