@@ -1,9 +1,20 @@
-# Brandstof-informatie v2.4.0
+# ⛽ Brandstof-informatie Nederland v2.4.0
+### Door Peter Vroon
+
+[![Live Demo](https://img.shields.io/badge/🚀%20OPEN%20LIVE%20APP-Direct%20in%20je%20Browser-success?style=for-the-badge&logo=safari)](https://petervroon-tech.github.io/Brandstof-informatie/)
+[![Versie](https://img.shields.io/badge/Versie-2.4.0-blue?style=for-the-badge)](https://petervroon-tech.github.io/Brandstof-informatie/)
+
+> ### 🌐 [👉 Klik hier om direct naar de live website te gaan (geen mapjes, direct de app!)](https://petervroon-tech.github.io/Brandstof-informatie/)
+> **Website adres:** `https://petervroon-tech.github.io/Brandstof-informatie/`
+
+---
 
 Een interactief, cross-platform WebAssembly dashboard voor **Brandstof-informatie in Nederland**: actuele dagprijzen én het dagelijkse prijsverschil met de dag ervoor voor **Super (Euro 95 E10 & Super 98 E5)** en **Diesel (B7)** in **91 plaatsen (178 tankstations)** door heel Nederland (alle 12 provincies).
 
 **Auteur:** Peter Vroon  
 **Versie:** 2.4.0
+
+---
 
 ## 🚀 Kenmerken
 - **💾 Automatisch Onthouden in Browser Storage**:
