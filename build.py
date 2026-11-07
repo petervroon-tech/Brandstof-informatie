@@ -268,8 +268,52 @@ for idx, c in enumerate(RAW_STATIONS):
     })
 
 
+# Historische trenddata voor Nederland per week, maand en jaren
+TRENDS = {
+    "week": [
+        {"label": "30 okt", "date": "30-10-2026", "e10": 2.115, "super98": 2.315, "diesel": 2.308},
+        {"label": "31 okt", "date": "31-10-2026", "e10": 2.109, "super98": 2.309, "diesel": 2.302},
+        {"label": "1 nov", "date": "01-11-2026", "e10": 2.105, "super98": 2.302, "diesel": 2.298},
+        {"label": "2 nov", "date": "02-11-2026", "e10": 2.098, "super98": 2.295, "diesel": 2.292},
+        {"label": "3 nov", "date": "03-11-2026", "e10": 2.094, "super98": 2.290, "diesel": 2.289},
+        {"label": "4 nov", "date": "04-11-2026", "e10": 2.089, "super98": 2.285, "diesel": 2.285},
+        {"label": "5 nov", "date": "05-11-2026", "e10": 2.085, "super98": 2.282, "diesel": 2.284},
+        {"label": "6 nov", "date": "06-11-2026", "e10": 2.082, "super98": 2.280, "diesel": 2.287},
+        {"label": "7 nov (Vandaag)", "date": "07-11-2026", "e10": 2.079, "super98": 2.279, "diesel": 2.289}
+    ],
+    "month": [
+        {"label": "Dec '25", "date": "12-2025", "e10": 2.049, "super98": 2.249, "diesel": 2.219},
+        {"label": "Jan '26", "date": "01-2026", "e10": 2.069, "super98": 2.269, "diesel": 2.239},
+        {"label": "Feb '26", "date": "02-2026", "e10": 2.059, "super98": 2.259, "diesel": 2.229},
+        {"label": "Mrt '26", "date": "03-2026", "e10": 2.089, "super98": 2.289, "diesel": 2.259},
+        {"label": "Apr '26", "date": "04-2026", "e10": 2.119, "super98": 2.319, "diesel": 2.279},
+        {"label": "Mei '26", "date": "05-2026", "e10": 2.139, "super98": 2.339, "diesel": 2.299},
+        {"label": "Jun '26", "date": "06-2026", "e10": 2.149, "super98": 2.349, "diesel": 2.319},
+        {"label": "Jul '26", "date": "07-2026", "e10": 2.129, "super98": 2.329, "diesel": 2.309},
+        {"label": "Aug '26", "date": "08-2026", "e10": 2.109, "super98": 2.309, "diesel": 2.299},
+        {"label": "Sep '26", "date": "09-2026", "e10": 2.099, "super98": 2.299, "diesel": 2.289},
+        {"label": "Okt '26", "date": "10-2026", "e10": 2.089, "super98": 2.289, "diesel": 2.285},
+        {"label": "Nov '26", "date": "11-2026", "e10": 2.079, "super98": 2.279, "diesel": 2.289}
+    ],
+    "years": [
+        {"label": "2020", "date": "2020", "e10": 1.625, "super98": 1.785, "diesel": 1.285, "note": "Coronacrisis lockdown"},
+        {"label": "2021", "date": "2021", "e10": 1.825, "super98": 1.985, "diesel": 1.465, "note": "Post-corona economisch herstel"},
+        {"label": "2022 (Piek)", "date": "2022-Q1", "e10": 2.455, "super98": 2.655, "diesel": 2.345, "note": "Start energiecrisis & oorlog Oekraïne"},
+        {"label": "2022 (Accijns)", "date": "2022-Q3", "e10": 2.085, "super98": 2.285, "diesel": 2.045, "note": "Noodmaatregel accijnsverlaging overheid"},
+        {"label": "2023", "date": "2023", "e10": 2.065, "super98": 2.265, "diesel": 1.895, "note": "Gedeeltelijke afbouw accijnskorting"},
+        {"label": "2024", "date": "2024", "e10": 2.115, "super98": 2.325, "diesel": 1.945, "note": "Inflatiecorrectie & stabiele olieprijs"},
+        {"label": "2025", "date": "2025", "e10": 2.095, "super98": 2.295, "diesel": 2.235, "note": "Verhoging biobrandstofmandaten"},
+        {"label": "2026 (Nu)", "date": "2026", "e10": 2.079, "super98": 2.279, "diesel": 2.289, "note": "Huidige peildatum"}
+    ]
+}
+
+
 def build_wasm(output_path: str):
-    data_bytes = json.dumps(STATIONS).encode("utf-8")
+    payload = {
+        "stations": STATIONS,
+        "trends": TRENDS
+    }
+    data_bytes = json.dumps(payload).encode("utf-8")
     data_len = len(data_bytes)
     count = len(STATIONS)
 
@@ -280,8 +324,8 @@ def build_wasm(output_path: str):
     # 2. Function section (ID 3): 3 functies van type 0
     func_sec = create_section(3, bytes([3, 0, 0, 0]))
 
-    # 3. Memory section (ID 5): 1 memory pagina (64KB is ruim voldoende voor ~25KB)
-    mem_sec = create_section(5, bytes([1, 0x00, 0x01]))
+    # 3. Memory section (ID 5): 2 memory pagina's (128KB, ruim voldoende voor ~40KB JSON)
+    mem_sec = create_section(5, bytes([1, 0x00, 0x02]))
 
     # 4. Export section (ID 7): exporteer memory en 3 functies
     exp_mem = encode_u32(len(b"memory")) + b"memory" + bytes([0x02, 0x00])

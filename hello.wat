@@ -1,9 +1,9 @@
 (module
-  ;; Declareer en exporteer 1 geheugenpagina (64 KB)
-  (memory (export "memory") 1)
+  ;; Declareer en exporteer 2 geheugenpagina's (128 KB)
+  (memory (export "memory") 2)
 
-  ;; Sla de JSON dataset met brandstofprijzen en dagverschillen op in lineair geheugen op offset 0
-  (data (i32.const 0) "[{\"name\": \"Fieten Olie\", \"city\": \"Apeldoorn\", \"e10\": 2.079, \"diff_e10\": -0.015, ...}]")
+  ;; Sla de JSON dataset met brandstofprijzen, dagverschillen én historische trenddata op in lineair geheugen op offset 0
+  (data (i32.const 0) "{\"stations\": [...], \"trends\": {\"week\": [...], \"month\": [...], \"years\": [...]}}")
 
   ;; Exporteer functies om data-offset, datalengte en het aantal stations op te halen
   (func (export "get_data_offset") (result i32)
@@ -12,7 +12,7 @@
 
   (func (export "get_data_len") (result i32)
     ;; Geeft de exacte lengte van de JSON-data in bytes terug
-    i32.const 35940
+    i32.const 38959
   )
 
   (func (export "get_station_count") (result i32)
