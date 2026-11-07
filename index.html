@@ -2155,7 +2155,7 @@
       <div class="badge">
         <span>Peter Vroon</span>
         <span style="opacity: 0.5;">•</span>
-        <span style="background: rgba(56, 189, 248, 0.2); padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; letter-spacing: 0.02em;">v2.3.0</span>
+        <span style="background: rgba(56, 189, 248, 0.2); padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; letter-spacing: 0.02em;">v2.4.0</span>
       </div>
       <h1>Brandstof-informatie Nederland</h1>
       <p class="subtitle">
@@ -2233,13 +2233,13 @@
           <label for="radiusPostcodeInput">
             <span>📍 Postcode of Plaats</span>
             <span style="display: inline-flex; align-items: center; gap: 0.35rem;">
-              <span id="savedIndicator" style="display: none; font-size: 0.7rem; color: var(--green); font-weight: 700;">💾 Opgeslagen</span>
+              <span id="savedIndicator" style="display: none; font-size: 0.7rem; color: var(--green); font-weight: 700; background: rgba(34, 197, 94, 0.12); padding: 0.15rem 0.45rem; border-radius: 4px; border: 1px solid rgba(34, 197, 94, 0.3);">💾 Browser Storage Actief</span>
               <span style="font-size: 0.725rem; color: var(--accent); font-weight: 600;">↵ Druk op Enter</span>
             </span>
           </label>
           <div class="radius-input-group">
-            <input type="text" id="radiusPostcodeInput" class="radius-input" placeholder="bijv. 7311 of Apeldoorn" value="7311" onkeydown="handlePostcodeKey(event)" />
-            <button class="btn-confirm-postcode" onclick="confirmPostcode()" title="Bevestig postcode (of druk op Enter)">
+            <input type="text" id="radiusPostcodeInput" class="radius-input" placeholder="bijv. 7311 of Apeldoorn" value="" onkeydown="handlePostcodeKey(event)" onchange="savePostcodeToStorage(this.value)" oninput="handlePostcodeTyping(this.value)" />
+            <button class="btn-confirm-postcode" onclick="confirmPostcode()" title="Bevestig postcode en sla op in browser storage">
               ↵ Zoek
             </button>
             <button class="btn-gps" onclick="useCurrentLocation()" title="Gebruik huidige GPS locatie">
@@ -2247,7 +2247,7 @@
             </button>
           </div>
           <div class="radius-hint">
-            <span>ℹ️</span> <em>Druk na het invullen op <strong>Enter</strong> om te bevestigen (wordt automatisch onthouden).</em>
+            <span>💾</span> <em>Wordt automatisch bewaard in je <strong>browser storage</strong> (localStorage). Druk op <strong>Enter</strong> om te zoeken.</em>
           </div>
         </div>
 
@@ -2450,7 +2450,7 @@
 
     <footer>
       <div>💡 <em>Klik op een tankstation of de knop <strong>🗺️ Kaart & Route</strong> om het Google Maps kaartje en de routeplanner te openen.</em></div>
-      <div>Brandstof-informatie Nederland • Peter Vroon • Versie 2.3.0</div>
+      <div>Brandstof-informatie Nederland • Peter Vroon • Versie 2.4.0</div>
     </footer>
   </div>
 
@@ -3491,14 +3491,54 @@
       return null;
     }
 
-    function showSavedIndicator() {
+    // Browser Storage Beheer (localStorage met sessionStorage fallback)
+    const StorageService = {
+      set: function(key, val) {
+        try { window.localStorage.setItem(key, String(val)); } catch (e) {
+          try { window.sessionStorage.setItem(key, String(val)); } catch (e2) {}
+        }
+      },
+      get: function(key) {
+        try {
+          const val = window.localStorage.getItem(key);
+          if (val !== null) return val;
+        } catch (e) {}
+        try { return window.sessionStorage.getItem(key); } catch (e2) { return null; }
+      },
+      remove: function(key) {
+        try { window.localStorage.removeItem(key); } catch (e) {}
+        try { window.sessionStorage.removeItem(key); } catch (e2) {}
+      }
+    };
+
+    function showSavedIndicator(msg) {
       const ind = document.getElementById("savedIndicator");
       if (ind) {
+        ind.innerText = msg || "💾 Browser Storage Actief";
         ind.style.display = "inline";
-        clearTimeout(window._saveTimer);
-        window._saveTimer = setTimeout(() => {
-          ind.style.display = "none";
-        }, 3000);
+        if (typeof clearTimeout !== "undefined" && typeof setTimeout !== "undefined") {
+          clearTimeout(window._saveTimer);
+          window._saveTimer = setTimeout(() => {
+            ind.style.display = "none";
+          }, 4000);
+        }
+      }
+    }
+
+    function savePostcodeToStorage(val) {
+      if (!val) return;
+      const cleanVal = val.trim();
+      if (cleanVal.length >= 2) {
+        StorageService.set("brandstof_saved_postcode", cleanVal);
+        showSavedIndicator("💾 Opgeslagen in browser storage");
+      }
+    }
+
+    function handlePostcodeTyping(val) {
+      const cleanVal = val.trim();
+      // Automatisch direct opslaan in browser storage als er 4 cijfers zijn ingetoetst
+      if (/^\d{4}$/.test(cleanVal)) {
+        savePostcodeToStorage(cleanVal);
       }
     }
 
@@ -3517,10 +3557,7 @@
       if (resolved) {
         radiusCenter = resolved;
         radiusSearchActive = true;
-        try {
-          localStorage.setItem("brandstof_saved_postcode", val);
-          showSavedIndicator();
-        } catch (e) {}
+        savePostcodeToStorage(val);
         executeRadiusSearch();
         if (inputEl) inputEl.blur();
       } else {
@@ -3532,7 +3569,7 @@
       radiusKm = parseInt(val, 10);
       document.getElementById("radiusValBadge").innerText = `${radiusKm} km`;
       updateRadiusPillHighlight();
-      try { localStorage.setItem("brandstof_saved_radius", radiusKm); } catch (e) {}
+      StorageService.set("brandstof_saved_radius", radiusKm);
       radiusSearchActive = true;
       executeRadiusSearch();
     }
@@ -3542,7 +3579,7 @@
       document.getElementById("radiusRange").value = km;
       document.getElementById("radiusValBadge").innerText = `${km} km`;
       updateRadiusPillHighlight();
-      try { localStorage.setItem("brandstof_saved_radius", km); } catch (e) {}
+      StorageService.set("brandstof_saved_radius", km);
       radiusSearchActive = true;
       executeRadiusSearch();
     }
@@ -3560,7 +3597,7 @@
 
     function setRadiusFuelType(type) {
       radiusFuelType = type;
-      try { localStorage.setItem("brandstof_saved_fuel", type); } catch (e) {}
+      StorageService.set("brandstof_saved_fuel", type);
       document.getElementById("btnRadiusE10").className = `radius-fuel-btn ${type === 'e10' ? 'active-e10' : ''}`;
       document.getElementById("btnRadiusDiesel").className = `radius-fuel-btn ${type === 'diesel' ? 'active-diesel' : ''}`;
       document.getElementById("btnRadiusSuper").className = `radius-fuel-btn ${type === 'super98' ? 'active-super' : ''}`;
@@ -3604,10 +3641,8 @@
           };
           const locName = nearestCity.split(" ")[0];
           document.getElementById("radiusPostcodeInput").value = locName;
-          try {
-            localStorage.setItem("brandstof_saved_postcode", locName);
-            showSavedIndicator();
-          } catch (e) {}
+          StorageService.set("brandstof_saved_postcode", locName);
+          showSavedIndicator("💾 Opgeslagen in browser storage");
           radiusSearchActive = true;
           executeRadiusSearch();
         },
@@ -3839,42 +3874,44 @@
     }
 
     function loadSavedPreferences() {
-      try {
-        const savedPc = localStorage.getItem("brandstof_saved_postcode");
-        if (savedPc) {
-          const inputEl = document.getElementById("radiusPostcodeInput");
-          if (inputEl) inputEl.value = savedPc;
-          const resolved = resolveLocation(savedPc);
-          if (resolved) {
-            radiusCenter = resolved;
-            showSavedIndicator();
-          }
+      const savedPc = StorageService.get("brandstof_saved_postcode");
+      const inputEl = document.getElementById("radiusPostcodeInput");
+      if (savedPc) {
+        if (inputEl) inputEl.value = savedPc;
+        const resolved = resolveLocation(savedPc);
+        if (resolved) {
+          radiusCenter = resolved;
+          showSavedIndicator("💾 Geladen uit browser storage");
         }
-        const savedRadius = localStorage.getItem("brandstof_saved_radius");
-        if (savedRadius) {
-          const parsed = parseInt(savedRadius, 10);
-          if (!isNaN(parsed) && parsed >= 1 && parsed <= 50) {
-            radiusKm = parsed;
-            const slider = document.getElementById("radiusRange");
-            if (slider) slider.value = radiusKm;
-            const badge = document.getElementById("radiusValBadge");
-            if (badge) badge.innerText = `${radiusKm} km`;
-            updateRadiusPillHighlight();
-          }
+      } else {
+        if (inputEl && !inputEl.value) inputEl.value = "7311";
+      }
+
+      const savedRadius = StorageService.get("brandstof_saved_radius");
+      if (savedRadius) {
+        const parsed = parseInt(savedRadius, 10);
+        if (!isNaN(parsed) && parsed >= 1 && parsed <= 50) {
+          radiusKm = parsed;
+          const slider = document.getElementById("radiusRange");
+          if (slider) slider.value = radiusKm;
+          const badge = document.getElementById("radiusValBadge");
+          if (badge) badge.innerText = `${radiusKm} km`;
+          updateRadiusPillHighlight();
         }
-        const savedFuel = localStorage.getItem("brandstof_saved_fuel");
-        if (savedFuel && ['e10', 'diesel', 'super98'].includes(savedFuel)) {
-          radiusFuelType = savedFuel;
-          const btnE10 = document.getElementById("btnRadiusE10");
-          const btnDiesel = document.getElementById("btnRadiusDiesel");
-          const btnSuper = document.getElementById("btnRadiusSuper");
-          if (btnE10) btnE10.className = `radius-fuel-btn ${savedFuel === 'e10' ? 'active-e10' : ''}`;
-          if (btnDiesel) btnDiesel.className = `radius-fuel-btn ${savedFuel === 'diesel' ? 'active-diesel' : ''}`;
-          if (btnSuper) btnSuper.className = `radius-fuel-btn ${savedFuel === 'super98' ? 'active-super' : ''}`;
-          const sortSelect = document.getElementById("sortBy");
-          if (sortSelect) sortSelect.value = savedFuel;
-        }
-      } catch (e) {}
+      }
+
+      const savedFuel = StorageService.get("brandstof_saved_fuel");
+      if (savedFuel && ['e10', 'diesel', 'super98'].includes(savedFuel)) {
+        radiusFuelType = savedFuel;
+        const btnE10 = document.getElementById("btnRadiusE10");
+        const btnDiesel = document.getElementById("btnRadiusDiesel");
+        const btnSuper = document.getElementById("btnRadiusSuper");
+        if (btnE10) btnE10.className = `radius-fuel-btn ${savedFuel === 'e10' ? 'active-e10' : ''}`;
+        if (btnDiesel) btnDiesel.className = `radius-fuel-btn ${savedFuel === 'diesel' ? 'active-diesel' : ''}`;
+        if (btnSuper) btnSuper.className = `radius-fuel-btn ${savedFuel === 'super98' ? 'active-super' : ''}`;
+        const sortSelect = document.getElementById("sortBy");
+        if (sortSelect) sortSelect.value = savedFuel;
+      }
     }
 
     function populateCityDropdown() {

@@ -1,14 +1,15 @@
-# Brandstof-informatie v2.3.0
+# Brandstof-informatie v2.4.0
 
 Een interactief, cross-platform WebAssembly dashboard voor **Brandstof-informatie in Nederland**: actuele dagprijzen én het dagelijkse prijsverschil met de dag ervoor voor **Super (Euro 95 E10 & Super 98 E5)** en **Diesel (B7)** in **91 plaatsen (178 tankstations)** door heel Nederland (alle 12 provincies).
 
 **Auteur:** Peter Vroon  
-**Versie:** 2.3.0
+**Versie:** 2.4.0
 
 ## 🚀 Kenmerken
-- **💾 Automatisch Onthouden van Postcode & Voorkeuren**:
-  - De ingevoerde postcode of gekozen locatie wordt veilig bewaard in de browser (`localStorage`).
-  - Bij een herhaald bezoek op je smartphone, tablet of computer hoef je de postcode niet opnieuw in te vullen; de app opent direct met jouw vertrouwde regio en instellingen.
+- **💾 Automatisch Onthouden in Browser Storage**:
+  - De ingevoerde postcode of gekozen locatie wordt direct veilig bewaard in de **browser storage** (`localStorage` met `sessionStorage` fallback).
+  - Zowel bij het typen van een 4-cijferige postcode, bij bevestiging met **Enter** of de **Zoek**-knop, als via de **GPS**-locatiebepaling wordt je locatie opgeslagen.
+  - Bij elk herhaald bezoek op je smartphone, tablet of computer opent de app direct met jouw eigen postcode en regio.
 - **🔄 Volautomatische Dagelijkse Prijsupdater (GitHub Actions)**:
   - Elke ochtend om 06:00 UTC (07:00 / 08:00 Nederlandse tijd) draait de geautomatiseerde cronjob `.github/workflows/daily-price-update.yml`.
   - Berekent en ververst de actuele marktprijzen en dagmutaties t.o.v. de dag ervoor voor alle 178 tankstations.
