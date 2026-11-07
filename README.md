@@ -1,6 +1,6 @@
-# Brandstofprijzen Nederland (WebAssembly)
+# Brandstof-informatie (WebAssembly)
 
-Een interactief, cross-platform WebAssembly dashboard dat actuele dagprijzen én het dagelijkse prijsverschil met de dag ervoor toont voor **Super (Euro 95 E10 & Super 98 E5)** en **Diesel (B7)** in **91 plaatsen (178 tankstations)** door heel Nederland (alle 12 provincies).
+Een interactief, cross-platform WebAssembly dashboard voor **Brandstof-informatie in Nederland**: actuele dagprijzen én het dagelijkse prijsverschil met de dag ervoor voor **Super (Euro 95 E10 & Super 98 E5)** en **Diesel (B7)** in **91 plaatsen (178 tankstations)** door heel Nederland (alle 12 provincies).
 
 ## 🚀 Kenmerken
 - **WebAssembly Power**: De complete landelijke dataset (178 stations in 91 steden en dorpen inclusief dagprijzen en dagverschillen) wordt rechtstreeks vanuit het lineaire geheugen van de WebAssembly-binary (`hello.wasm`) gedecodeerd.
