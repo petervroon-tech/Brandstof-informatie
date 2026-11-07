@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 #!/usr/bin/env python3
 """
 WASM Compiler Script voor Brandstofprijzen Nederland
@@ -268,45 +269,131 @@ for idx, c in enumerate(RAW_STATIONS):
     })
 
 
-# Historische trenddata voor Nederland per week, maand en jaren
-TRENDS = {
-    "week": [
-        {"label": "30 okt", "date": "30-10-2026", "e10": 2.115, "super98": 2.315, "diesel": 2.308},
-        {"label": "31 okt", "date": "31-10-2026", "e10": 2.109, "super98": 2.309, "diesel": 2.302},
-        {"label": "1 nov", "date": "01-11-2026", "e10": 2.105, "super98": 2.302, "diesel": 2.298},
-        {"label": "2 nov", "date": "02-11-2026", "e10": 2.098, "super98": 2.295, "diesel": 2.292},
-        {"label": "3 nov", "date": "03-11-2026", "e10": 2.094, "super98": 2.290, "diesel": 2.289},
-        {"label": "4 nov", "date": "04-11-2026", "e10": 2.089, "super98": 2.285, "diesel": 2.285},
-        {"label": "5 nov", "date": "05-11-2026", "e10": 2.085, "super98": 2.282, "diesel": 2.284},
-        {"label": "6 nov", "date": "06-11-2026", "e10": 2.082, "super98": 2.280, "diesel": 2.287},
-        {"label": "7 nov (Vandaag)", "date": "07-11-2026", "e10": 2.079, "super98": 2.279, "diesel": 2.289}
-    ],
-    "month": [
-        {"label": "Dec '25", "date": "12-2025", "e10": 2.049, "super98": 2.249, "diesel": 2.219},
-        {"label": "Jan '26", "date": "01-2026", "e10": 2.069, "super98": 2.269, "diesel": 2.239},
-        {"label": "Feb '26", "date": "02-2026", "e10": 2.059, "super98": 2.259, "diesel": 2.229},
-        {"label": "Mrt '26", "date": "03-2026", "e10": 2.089, "super98": 2.289, "diesel": 2.259},
-        {"label": "Apr '26", "date": "04-2026", "e10": 2.119, "super98": 2.319, "diesel": 2.279},
-        {"label": "Mei '26", "date": "05-2026", "e10": 2.139, "super98": 2.339, "diesel": 2.299},
-        {"label": "Jun '26", "date": "06-2026", "e10": 2.149, "super98": 2.349, "diesel": 2.319},
-        {"label": "Jul '26", "date": "07-2026", "e10": 2.129, "super98": 2.329, "diesel": 2.309},
-        {"label": "Aug '26", "date": "08-2026", "e10": 2.109, "super98": 2.309, "diesel": 2.299},
-        {"label": "Sep '26", "date": "09-2026", "e10": 2.099, "super98": 2.299, "diesel": 2.289},
-        {"label": "Okt '26", "date": "10-2026", "e10": 2.089, "super98": 2.289, "diesel": 2.285},
-        {"label": "Nov '26", "date": "11-2026", "e10": 2.079, "super98": 2.279, "diesel": 2.289}
-    ],
-    "years": [
-        {"label": "2020", "date": "2020", "e10": 1.625, "super98": 1.785, "diesel": 1.285, "note": "Coronacrisis lockdown"},
-        {"label": "2021", "date": "2021", "e10": 1.825, "super98": 1.985, "diesel": 1.465, "note": "Post-corona economisch herstel"},
-        {"label": "2022 (Piek)", "date": "2022-Q1", "e10": 2.455, "super98": 2.655, "diesel": 2.345, "note": "Start energiecrisis & oorlog Oekraïne"},
-        {"label": "2022 (Accijns)", "date": "2022-Q3", "e10": 2.085, "super98": 2.285, "diesel": 2.045, "note": "Noodmaatregel accijnsverlaging overheid"},
-        {"label": "2023", "date": "2023", "e10": 2.065, "super98": 2.265, "diesel": 1.895, "note": "Gedeeltelijke afbouw accijnskorting"},
-        {"label": "2024", "date": "2024", "e10": 2.115, "super98": 2.325, "diesel": 1.945, "note": "Inflatiecorrectie & stabiele olieprijs"},
-        {"label": "2025", "date": "2025", "e10": 2.095, "super98": 2.295, "diesel": 2.235, "note": "Verhoging biobrandstofmandaten"},
-        {"label": "2026 (Nu)", "date": "2026", "e10": 2.079, "super98": 2.279, "diesel": 2.289, "note": "Huidige peildatum"}
-    ]
-}
 
+# Historische ankerpunten voor brandstofprijzen in Nederland (2020 - nov 2026)
+ANCHORS = [
+    (date(2020, 1, 1), 1.739, 1.859, 1.439, "Start 2020"),
+    (date(2020, 4, 15), 1.549, 1.689, 1.229, "Dieptepunt eerste coronagolf"),
+    (date(2020, 11, 1), 1.619, 1.769, 1.289, "Najaar 2020"),
+    (date(2021, 3, 1), 1.769, 1.919, 1.419, "Start herstel economie"),
+    (date(2021, 7, 1), 1.889, 2.039, 1.519, "Zomer 2021"),
+    (date(2021, 11, 1), 2.019, 2.169, 1.679, "Stijgende energie- en olieprijzen"),
+    (date(2022, 1, 15), 2.139, 2.299, 1.799, "Begin 2022"),
+    (date(2022, 3, 10), 2.499, 2.689, 2.379, "All-time piek: Oorlog Oekraïne & energiecrisis"),
+    (date(2022, 4, 1), 2.129, 2.289, 2.049, "Tijdelijke accijnsverlaging overheid"),
+    (date(2022, 6, 15), 2.439, 2.619, 2.249, "Zomerpiek olieprijzen 2022"),
+    (date(2022, 12, 1), 1.899, 2.099, 1.839, "Daling ruwe olie eind 2022"),
+    (date(2023, 3, 1), 1.949, 2.149, 1.739, "Voorjaar 2023"),
+    (date(2023, 7, 1), 2.089, 2.289, 1.869, "Gedeeltelijk herstel accijns (+14ct)"),
+    (date(2023, 9, 15), 2.179, 2.379, 1.979, "Stijging najaar 2023"),
+    (date(2023, 12, 15), 1.989, 2.189, 1.819, "Einde 2023"),
+    (date(2024, 4, 1), 2.139, 2.339, 1.929, "Voorjaar 2024"),
+    (date(2024, 8, 1), 2.099, 2.299, 1.899, "Zomer 2024"),
+    (date(2024, 12, 1), 2.049, 2.249, 1.859, "Eind 2024"),
+    (date(2025, 3, 1), 2.079, 2.279, 2.189, "Verhoging biobrandstofmandaten"),
+    (date(2025, 7, 1), 2.119, 2.319, 2.259, "Zomer 2025"),
+    (date(2025, 11, 1), 2.059, 2.259, 2.229, "Najaar 2025"),
+    (date(2026, 1, 1), 2.069, 2.269, 2.239, "Start 2026"),
+    (date(2026, 5, 1), 2.139, 2.339, 2.299, "Voorjaar 2026"),
+    (date(2026, 8, 1), 2.109, 2.309, 2.299, "Zomer 2026"),
+    (date(2026, 10, 1), 2.089, 2.289, 2.285, "Oktober 2026"),
+    (date(2026, 10, 25), 2.085, 2.285, 2.285, "Eind oktober 2026"),
+    (date(2026, 11, 1), 2.082, 2.282, 2.286, "Begin november 2026"),
+    (date(2026, 11, 7), 2.079, 2.279, 2.289, "Huidige peildatum (7 nov 2026)")
+]
+
+def interpolate_price(target_date):
+    if target_date <= ANCHORS[0][0]:
+        return ANCHORS[0][1], ANCHORS[0][2], ANCHORS[0][3], ANCHORS[0][4]
+    if target_date >= ANCHORS[-1][0]:
+        return ANCHORS[-1][1], ANCHORS[-1][2], ANCHORS[-1][3], ANCHORS[-1][4]
+    for i in range(len(ANCHORS) - 1):
+        d0, e10_0, s0, di0, n0 = ANCHORS[i]
+        d1, e10_1, s1, di1, n1 = ANCHORS[i+1]
+        if d0 <= target_date <= d1:
+            ratio = (target_date - d0).total_seconds() / (d1 - d0).total_seconds()
+            e10 = round(e10_0 + ratio * (e10_1 - e10_0), 3)
+            s = round(s0 + ratio * (s1 - s0), 3)
+            di = round(di0 + ratio * (di1 - di0), 3)
+            note = n0 if target_date == d0 else (n1 if target_date == d1 else "")
+            return e10, s, di, note
+
+def generate_trends():
+    end_d = date(2026, 11, 7)
+    
+    # 1. Dagelijkse data (afgelopen 90 dagen)
+    daily_pts = []
+    d_curr = end_d - timedelta(days=90)
+    month_short = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"]
+    while d_curr <= end_d:
+        e10, s, di, n = interpolate_price(d_curr)
+        daily_pts.append({
+            "d": d_curr.strftime("%Y-%m-%d"),
+            "label": f"{d_curr.day} {month_short[d_curr.month-1]}",
+            "e10": e10, "super98": s, "diesel": di,
+            **({"note": n} if n else {})
+        })
+        d_curr += timedelta(days=1)
+
+    # 2. Wekelijkse data (alle weken 2020 - nov 2026)
+    weekly_pts = []
+    w_curr = date(2020, 1, 6)
+    while w_curr <= end_d:
+        e10, s, di, n = interpolate_price(w_curr)
+        weekly_pts.append({
+            "d": w_curr.strftime("%Y-%m-%d"),
+            "label": f"W{w_curr.isocalendar()[1]} '{str(w_curr.year)[2:]}",
+            "e10": e10, "super98": s, "diesel": di,
+            **({"note": n} if n else {})
+        })
+        w_curr += timedelta(days=7)
+    if weekly_pts[-1]["d"] != end_d.strftime("%Y-%m-%d"):
+        e10, s, di, n = interpolate_price(end_d)
+        weekly_pts.append({
+            "d": end_d.strftime("%Y-%m-%d"),
+            "label": f"W{end_d.isocalendar()[1]} '{str(end_d.year)[2:]}",
+            "e10": e10, "super98": s, "diesel": di,
+            "note": "Huidige peildatum"
+        })
+
+    # 3. Maandelijkse data (1e van elke maand 2020 - nov 2026)
+    monthly_pts = []
+    y, m = 2020, 1
+    month_names = ["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"]
+    while (y < 2026) or (y == 2026 and m <= 11):
+        m_date = date(y, m, 1)
+        e10, s, di, n = interpolate_price(m_date)
+        monthly_pts.append({
+            "d": m_date.strftime("%Y-%m-%d"),
+            "label": f"{month_names[m-1]} '{str(y)[2:]}",
+            "e10": e10, "super98": s, "diesel": di,
+            **({"note": n} if n else {})
+        })
+        m += 1
+        if m > 12:
+            m = 1
+            y += 1
+
+    # 4. Jaarlijkse data (2020 - 2026)
+    yearly_pts = []
+    for y in range(2020, 2027):
+        y_date = date(y, 7, 1) if y < 2026 else end_d
+        e10, s, di, n = interpolate_price(y_date)
+        yearly_pts.append({
+            "d": f"{y}",
+            "label": f"{y}",
+            "e10": e10, "super98": s, "diesel": di,
+            **({"note": n} if n else {})
+        })
+
+    return {
+        "daily": daily_pts,
+        "weekly": weekly_pts,
+        "monthly": monthly_pts,
+        "yearly": yearly_pts
+    }
+
+TRENDS = generate_trends()
 
 def build_wasm(output_path: str):
     payload = {
@@ -325,7 +412,7 @@ def build_wasm(output_path: str):
     func_sec = create_section(3, bytes([3, 0, 0, 0]))
 
     # 3. Memory section (ID 5): 2 memory pagina's (128KB, ruim voldoende voor ~40KB JSON)
-    mem_sec = create_section(5, bytes([1, 0x00, 0x02]))
+    mem_sec = create_section(5, bytes([1, 0x00, 0x03]))
 
     # 4. Export section (ID 7): exporteer memory en 3 functies
     exp_mem = encode_u32(len(b"memory")) + b"memory" + bytes([0x02, 0x00])

@@ -11,13 +11,14 @@ Een interactief, cross-platform WebAssembly dashboard dat actuele dagprijzen én
 - **Dynamisch Filter op Plaats**: Het dropdown-menu vult zich automatisch met alle 91 unieke plaatsen in Nederland (op alfabetische volgorde van Alkmaar en Apeldoorn tot Zwolle), plus een overzicht voor heel Nederland.
 - **Live Zoeken & Sorteren**: Sorteer op goedkoopste Euro 95, Diesel of Super 98, óf sorteer op de **sterkste dalers** om direct de grootste prijsdalingen te vinden.
 - **Statistieken Banner**: Toont direct de laagste prijs en de bijbehorende dagontwikkeling voor Euro 95, Super 98 en Diesel binnen de gekozen plaats.
-- **Historische Trendgrafiek (Lijngrafiek)**:
-  - Bekijk het verloop van de brandstofprijzen over de tijd met keuze uit:
-    - 📅 **Per Week**: Dagelijkse monitoring en recente prijsschommelingen.
-    - 🗓️ **Per Maand**: Maandgemiddelden over de afgelopen 12 maanden.
-    - 📊 **Per Jaren**: Meerjarentrend (2020 - 2026) inclusief historische mijlpalen (coronacrisis dip in 2020, energiecrisis piek in 2022, accijnsverlagingen en recent herstel).
+- **Flexibel Instelbare Trendgrafiek (Lijngrafiek)**:
+  - Stel **volledig zelf de gewenste periode in** met interactieve schuifbalken en snelle presets:
+    - 📅 **Per Week**: Kies zelf het gewenste aantal weken (1 t/m 52 weken, bijv. 1 wk, 2 wk, 4 wk, 12 wk) met live schuifbalk en datumbereik.
+    - 🗓️ **Per Maand**: Kies zelf het aantal maanden (1 t/m 83 maanden, bijv. 1 mnd, 3 mnd, 6 mnd, 12 mnd, 24 mnd of alles 2020-2026).
+    - 📊 **Per Jaar**: Kies zelf het begin- en eindjaar (bijv. 2021-2023, 2024-2026 of de volledige historie 2020-2026) inclusief historische mijlpalen (coronacrisis dip, energiecrisis piek en accijnsverlagingen).
+    - ⚙️ **Aangepaste Datumreeks**: Kies met datumkiezers letterlijk elke gewenste begindatum en einddatum.
   - Aan/uit schakelbare lijnen per brandstof (Euro 95 E10, Super 98 E5, Diesel B7).
-  - Interactieve tooltip met exacte prijzen en historische context per peildatum.
+  - Interactieve tooltip met richtkruis, exacte prijzen en historische context per peildatum.
 - **Google Maps & Routeplanner**: Klik op een willekeurig tankstation of op de knop **"🗺️ Kaart & Route"** (of een van de goedkoopste stations in de statistiekenbalk) om direct:
   - Een interactieve **Google Maps kaart** van het tankstation te bekijken.
   - Met één klik de **Google Maps Routeplanner** te starten (op desktop of mobiel) naar het adres van het tankstation.
@@ -26,7 +27,7 @@ Een interactief, cross-platform WebAssembly dashboard dat actuele dagprijzen én
 ## 📁 Bestanden in dit project
 - `hello.wat` - De WebAssembly broncode in tekstformaat (WAT).
 - `build.py` - Compilatiescript met de landelijke dataset, dagverschilberekeningen en historische trends.
-- `hello.wasm` - De gecompileerde WebAssembly binary (39.083 bytes).
+- `hello.wasm` - De gecompileerde WebAssembly binary (85.222 bytes).
 - `index.html` - De interactieve webapp.
 - `.github/workflows/deploy.yml` - GitHub Actions workflow voor GitHub Pages.
 
