@@ -4,8 +4,12 @@
 [![Live Demo](https://img.shields.io/badge/🚀%20OPEN%20LIVE%20APP-Direct%20in%20je%20Browser-success?style=for-the-badge&logo=safari)](https://petervroon-tech.github.io/Brandstof-informatie/)
 [![Versie](https://img.shields.io/badge/Versie-2.4.0-blue?style=for-the-badge)](https://petervroon-tech.github.io/Brandstof-informatie/)
 
-> ### 🌐 [👉 Klik hier om direct naar de live website te gaan (geen mapjes, direct de app!)](https://petervroon-tech.github.io/Brandstof-informatie/)
-> **Website adres:** `https://petervroon-tech.github.io/Brandstof-informatie/`
+> ### 🌐 [👉 KLIK HIER OM DE LIVE WEBSITE TE OPENEN](https://petervroon-tech.github.io/Brandstof-informatie/)
+> **Directe link:** `https://petervroon-tech.github.io/Brandstof-informatie/`
+
+[![Brandstof-informatie Dashboard Preview](preview.jpg)](https://petervroon-tech.github.io/Brandstof-informatie/)
+
+*Klik op de afbeelding of op de groene knop hierboven om de app direct live in actie te zien!*
 
 ---
 
