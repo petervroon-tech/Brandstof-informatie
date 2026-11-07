@@ -3,6 +3,11 @@
 Een interactief, cross-platform WebAssembly dashboard voor **Brandstof-informatie in Nederland**: actuele dagprijzen én het dagelijkse prijsverschil met de dag ervoor voor **Super (Euro 95 E10 & Super 98 E5)** en **Diesel (B7)** in **91 plaatsen (178 tankstations)** door heel Nederland (alle 12 provincies).
 
 ## 🚀 Kenmerken
+- **📱 Speciaal Geoptimaliseerd voor Smartphones**:
+  - **Native App Kaartweergave**: Op smartphones worden brede tabellen automatisch getransformeerd in moderne, overzichtelijke stationskaarten met een 3-koloms prijsraster en duimvriendelijke knoppen.
+  - **Zwevende Mobiele Snelle Navigatie**: Een compacte navigatiebalk onderaan het scherm om met één tik te schakelen tussen Postcode & Straal, Trendgrafiek, Stationslijst en Terug naar boven.
+  - **Mobiele Google Maps Bottom Sheet**: De routeplanner en kaart openen soepel vanaf de onderkant van het scherm.
+  - **Touch & Swipe Geoptimaliseerd**: Geen ongewenste browser-zoom bij invoervelden, grote aanraakvlakken (minimaal 44px) en directe responsiviteit bij het aanraken van de trendgrafiek.
 - **WebAssembly Power**: De complete landelijke dataset (178 stations in 91 steden en dorpen inclusief dagprijzen, GPS-coördinaten, postcodes en dagverschillen) wordt rechtstreeks vanuit het lineaire geheugen van de WebAssembly-binary (`hello.wasm`) gedecodeerd.
 - **🎯 Goedkoopste Tankstation in Instelbare Cirkel rond Postcode**:
   - Voer eenvoudig een **4-cijferige postcode** (bijv. `7311`, `1012`, `3011`) of plaatsnaam in, of gebruik de knop **"📍 GPS"** voor je huidige positie.
