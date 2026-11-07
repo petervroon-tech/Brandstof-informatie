@@ -1,0 +1,42 @@
+name: Dagelijkse Brandstofprijs Update
+
+on:
+  schedule:
+    # Elke ochtend om 06:00 UTC (07:00 / 08:00 Nederlandse tijd)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Handmatig starten via GitHub interface
+
+permissions:
+  contents: write
+
+jobs:
+  update-prices:
+    name: Update Prijzen & Herbouw WASM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Voer dagelijkse prijsupdater uit
+        run: |
+          python update_prices.py
+
+      - name: Commit en push actuele prijzen
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          if git diff --quiet; then
+            echo "Geen prijswijzigingen gedetecteerd."
+          else
+            git add hello.wasm wasm_b64.txt index.html build.py
+            git commit -m "🤖 Dagelijkse automatische brandstofprijs-update ($(date +'%d-%m-%Y'))"
+            git push origin main
+          fi

@@ -508,14 +508,18 @@ def generate_trends():
 
 TRENDS = generate_trends()
 
-def build_wasm(output_path: str):
-    payload = {
-        "stations": STATIONS,
-        "trends": TRENDS
-    }
+def build_wasm(output_path: str, custom_payload: dict = None):
+    if custom_payload is not None:
+        payload = custom_payload
+        count = len(payload.get("stations", []))
+    else:
+        payload = {
+            "stations": STATIONS,
+            "trends": TRENDS
+        }
+        count = len(STATIONS)
     data_bytes = json.dumps(payload).encode("utf-8")
     data_len = len(data_bytes)
-    count = len(STATIONS)
 
     # 1. Type section (ID 1): type 0: () -> i32
     type_payload = bytes([1, 0x60, 0, 1, 0x7F])

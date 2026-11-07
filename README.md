@@ -3,6 +3,11 @@
 Een interactief, cross-platform WebAssembly dashboard voor **Brandstof-informatie in Nederland**: actuele dagprijzen én het dagelijkse prijsverschil met de dag ervoor voor **Super (Euro 95 E10 & Super 98 E5)** en **Diesel (B7)** in **91 plaatsen (178 tankstations)** door heel Nederland (alle 12 provincies).
 
 ## 🚀 Kenmerken
+- **🔄 Volautomatische Dagelijkse Prijsupdater (GitHub Actions)**:
+  - Elke ochtend om 06:00 UTC (07:00 / 08:00 Nederlandse tijd) draait de geautomatiseerde cronjob `.github/workflows/daily-price-update.yml`.
+  - Berekent en ververst de actuele marktprijzen en dagmutaties t.o.v. de dag ervoor voor alle 178 tankstations.
+  - Hercompileert automatisch de WebAssembly-binary (`hello.wasm`), updatet `index.html` en publiceert direct via GitHub Pages.
+  - Kan desgewenst ook op elk moment handmatig worden gestart via de GitHub Actions interface met de knop **"Run workflow"**.
 - **📱 Speciaal Geoptimaliseerd voor Smartphones**:
   - **Native App Kaartweergave**: Op smartphones worden brede tabellen automatisch getransformeerd in moderne, overzichtelijke stationskaarten met een 3-koloms prijsraster en duimvriendelijke knoppen.
   - **Zwevende Mobiele Snelle Navigatie**: Een compacte navigatiebalk onderaan het scherm om met één tik te schakelen tussen Postcode & Straal, Trendgrafiek, Stationslijst en Terug naar boven.
