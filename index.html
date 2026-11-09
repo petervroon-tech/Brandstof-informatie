@@ -2158,7 +2158,7 @@
       <div class="badge">
         <span>Peter Vroon</span>
         <span style="opacity: 0.5;">•</span>
-        <span style="background: rgba(56, 189, 248, 0.2); padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; letter-spacing: 0.02em;">v2.4.3</span>
+        <span style="background: rgba(56, 189, 248, 0.2); padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; letter-spacing: 0.02em;">v2.4.4</span>
       </div>
       <h1>Brandstof-informatie Nederland</h1>
       <p class="subtitle">
@@ -2309,10 +2309,10 @@
       <div class="control-group">
         <label for="sortBy">📊 Sorteer op</label>
         <select id="sortBy" onchange="applyFilters()">
-          <option value="dist">Afstand (dichtstbijzijnd)</option>
-          <option value="e10">Goedkoopste Euro 95 (E10)</option>
+          <option value="e10" selected>Goedkoopste Euro 95 (E10)</option>
           <option value="diesel">Goedkoopste Diesel (B7)</option>
           <option value="super98">Goedkoopste Super 98 (E5)</option>
+          <option value="dist">Afstand (dichtstbijzijnd)</option>
           <option value="diff_e10">Sterkste dalers Euro 95 (dagverschil)</option>
           <option value="diff_diesel">Sterkste dalers Diesel (dagverschil)</option>
           <option value="city">Plaatsnaam (A-Z)</option>
@@ -2453,7 +2453,7 @@
 
     <footer>
       <div>💡 <em>Klik op een tankstation of de knop <strong>🗺️ Kaart & Route</strong> om het Google Maps kaartje en de routeplanner te openen.</em></div>
-      <div>Brandstof-informatie Nederland • Peter Vroon • Versie 2.4.3</div>
+      <div>Brandstof-informatie Nederland • Peter Vroon • Versie 2.4.4</div>
     </footer>
   </div>
 
@@ -3510,6 +3510,7 @@
     let radiusFuelType = 'e10'; // 'e10', 'diesel', 'super98'
     let radiusCenter = { lat: 52.2150, lng: 5.9650, name: "Apeldoorn Centrum (7311)" };
     let radiusInputDebounce = null;
+    var currentRadiusWinner = null;
 
     // Haversine formule voor afstand in km
     function calcDistanceKm(lat1, lon1, lat2, lon2) {
@@ -3815,12 +3816,17 @@
         return inDist && matchSearch;
       });
 
-      // 3. Sorteer op ingestelde sortering (of standaard brandstofprijs)
+      // 3. Sorteer op ingestelde sortering (standaard laagste prijs van het actieve brandstoftype)
       stationsInRadius.sort((a, b) => {
         if (sortBy === "name") return a.name.localeCompare(b.name, "nl");
         if (sortBy === "city") return a.city.localeCompare(b.city, "nl");
         if (sortBy === "dist") return a.distKm - b.distKm;
-        return a[sortBy] - b[sortBy];
+        if (sortBy === "diff_e10") return a.diff_e10 - b.diff_e10;
+        if (sortBy === "diff_diesel") return a.diff_diesel - b.diff_diesel;
+        const priceKey = ['e10', 'diesel', 'super98'].includes(sortBy) ? sortBy : radiusFuelType;
+        const diff = a[priceKey] - b[priceKey];
+        if (Math.abs(diff) > 0.0001) return diff;
+        return a.distKm - b.distKm;
       });
 
       // 4. Render Winner Banner
@@ -3852,7 +3858,14 @@
         return;
       }
 
-      const winner = stationsInRadius[0];
+      // De winnaar is ALTIJD het station met de allerlaagste prijs voor het actieve brandstoftype binnen de cirkel
+      const sortedByCheapest = [...stationsInRadius].sort((a, b) => {
+        const diff = a[radiusFuelType] - b[radiusFuelType];
+        if (Math.abs(diff) > 0.0001) return diff;
+        return a.distKm - b.distKm;
+      });
+      const winner = sortedByCheapest[0];
+      currentRadiusWinner = winner;
       const fuelName = radiusFuelType === 'e10' ? 'Euro 95 (E10)' : (radiusFuelType === 'diesel' ? 'Diesel (B7)' : 'Super 98 (E5)');
       const diffKey = radiusFuelType === 'e10' ? 'diff_e10' : (radiusFuelType === 'diesel' ? 'diff_diesel' : 'diff_super98');
 
@@ -3929,7 +3942,7 @@
       try {
         let wasmBytes;
         try {
-          const response = await fetch("hello.wasm?v=2.4.3_" + Date.now(), { cache: "no-store" });
+          const response = await fetch("hello.wasm?v=2.4.4_" + Date.now(), { cache: "no-store" });
           if (!response.ok) throw new Error("Fetch failed");
           wasmBytes = await response.arrayBuffer();
         } catch (fetchErr) {
@@ -3976,7 +3989,7 @@
       }
     }
 
-    const APP_VERSION = "2.4.3";
+    const APP_VERSION = "2.4.4";
 
     // Grondige opschoning bij opstarten van de app:
     // 1. Verwijdert alle oude cookies uit de browser
@@ -4162,7 +4175,7 @@
         if (s.type === "Bemand") typeClass = "type-bemand";
         if (s.type === "Snelweg") typeClass = "type-snelweg";
 
-        const isWinnerInRadius = radiusSearchActive && index === 0;
+        const isWinnerInRadius = radiusSearchActive && currentRadiusWinner && (s.name === currentRadiusWinner.name && s.address === currentRadiusWinner.address);
         const row = document.createElement("tr");
         row.className = `row-clickable ${isWinnerInRadius ? 'row-winner' : ''}`;
         row.onclick = (e) => {
