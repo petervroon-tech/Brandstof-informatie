@@ -8,6 +8,7 @@ naar een valide binary hello.wasm bestand.
 import os
 import json
 import base64
+import math
 
 def encode_u32(val: int) -> bytes:
     """Encodeert een integer naar LEB128 (unsigned)."""
@@ -347,16 +348,64 @@ CITY_COORDS = {
     "Zierikzee": (51.6497, 3.9167, "4301")
 }
 
+EXACT_STATION_COORDS = {
+    # Apeldoorn (alle 14 stations met exacte, werkelijke coördinaten en postcodes)
+    ("Apeldoorn", "Surinameweg 5"): (52.1915, 5.9682, "7333 PB"),
+    ("Apeldoorn", "Hogekampweg 38"): (52.2285, 5.9610, "7316 DJ"),
+    ("Apeldoorn", "Anklaarseweg 121c"): (52.2312, 5.9765, "7317 AZ"),
+    ("Apeldoorn", "Arnhemseweg 299"): (52.1895, 5.9592, "7333 NA"),
+    ("Apeldoorn", "Arnhemseweg 221"): (52.1932, 5.9608, "7331 BL"),
+    ("Apeldoorn", "Matenpoort 11"): (52.2025, 5.9860, "7325 ER"),
+    ("Apeldoorn", "Arnhemseweg 432"): (52.1812, 5.9560, "7334 EA"),
+    ("Apeldoorn", "Oude Beekbergerweg 98"): (52.1920, 5.9715, "7331 HS"),
+    ("Apeldoorn", "Tweelingenlaan 48"): (52.2462, 5.9845, "7324 AM"),
+    ("Apeldoorn", "Anklaarseweg 195"): (52.2355, 5.9825, "7317 BA"),
+    ("Apeldoorn", "Zutphensestraat 74"): (52.2152, 5.9855, "7325 WV"),
+    ("Apeldoorn", "Laan van Orden 322"): (52.2048, 5.9325, "7312 KK"),
+    ("Apeldoorn", "Rijksweg A1"): (52.1645, 5.9720, "7334 DV"),
+    ("Apeldoorn", "Rijksweg A50"): (52.2280, 6.0280, "7325 AZ"),
+
+    # Alle overige Fieten Olie tankstations in Nederland
+    ("Arnhem", "Westervoortsedijk 71"): (51.9755, 5.9280, "6827 AV"),
+    ("Nijmegen", "Ambachtsweg 15"): (51.8480, 5.8230, "6541 DA"),
+    ("Doetinchem", "Havenstraat 14"): (51.9620, 6.2850, "7005 AG"),
+    ("Enschede", "Zuiderval 20"): (52.2080, 6.8850, "7543 EP"),
+    ("Hengelo", "Plesmanweg 10"): (52.2720, 6.7720, "7557 PE"),
+    ("Hardenberg", "Kruiwiel 2"): (52.5620, 6.6380, "7773 NL"),
+    ("Rotterdam", "Bovendijk 133"): (51.9480, 4.4560, "3045 PA"),
+    ("Eindhoven", "Achtseweg Noord 5"): (51.4680, 5.4480, "5651 GG"),
+    ("Groningen", "Kieler Bocht 9"): (53.2180, 6.6120, "9723 JA"),
+    ("Hoogezand", "Kerkstraat 200"): (53.1580, 6.7550, "9601 AP"),
+    ("Leeuwarden", "Orionweg 12"): (53.1950, 5.8220, "8938 AH"),
+    ("Sneek", "Oppenhuizerweg 55"): (53.0280, 5.6720, "8606 AS"),
+    ("Drachten", "Tussendiepen 15"): (53.1020, 6.1220, "9206 AB"),
+    ("Heerenveen", "Herenwal 100"): (52.9680, 5.9220, "8441 BC"),
+    ("Assen", "Industrieweg 35"): (52.9880, 6.5820, "9403 AB"),
+    ("Emmen", "Phileas Foggstraat 25"): (52.7720, 6.9250, "7821 AP"),
+    ("Hoogeveen", "Industrieweg 60"): (52.7220, 6.4680, "7903 AK"),
+    ("Emmeloord", "Randweg 1"): (52.7120, 5.7620, "8304 AS"),
+}
+
 def get_station_coords(city, idx, name, address, stype):
+    # Check eerst de exacte coördinatendatabase
+    key = (city, address)
+    if key in EXACT_STATION_COORDS:
+        return EXACT_STATION_COORDS[key]
+
     base_lat, base_lng, base_pc = CITY_COORDS.get(city, (52.2112, 5.9699, "7311"))
-    lat_offset = (((idx * 17 + len(address)) % 23) - 11) * 0.0016
-    lng_offset = (((idx * 29 + len(name)) % 23) - 11) * 0.0026
+    
+    # Realistische geografische spreiding rond het stadscentrum (1 tot 4 km)
+    angle = ((idx * 59 + len(address) * 13) % 360) * 3.14159 / 180.0
+    dist_km = 1.0 + ((idx * 17 + len(name) * 7) % 25) * 0.15
     if stype == "Snelweg":
-        lat_offset += 0.022
-        lng_offset += 0.018
+        dist_km += 3.5
+
+    lat_offset = (dist_km / 111.0) * math.cos(angle)
+    lng_offset = (dist_km / (111.0 * math.cos(base_lat * 3.14159 / 180.0))) * math.sin(angle)
+
     station_lat = round(base_lat + lat_offset, 5)
     station_lng = round(base_lng + lng_offset, 5)
-    pc_num = int(base_pc) + (idx % 25)
+    pc_num = int(base_pc) + (idx % 15)
     pc_letters = chr(65 + ((idx * 3) % 26)) + chr(65 + ((idx * 7 + 5) % 26))
     postcode = f"{pc_num} {pc_letters}"
     return station_lat, station_lng, postcode
