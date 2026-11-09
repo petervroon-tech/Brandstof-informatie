@@ -2,6 +2,9 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0b0f19" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -2155,7 +2158,7 @@
       <div class="badge">
         <span>Peter Vroon</span>
         <span style="opacity: 0.5;">•</span>
-        <span style="background: rgba(56, 189, 248, 0.2); padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; letter-spacing: 0.02em;">v2.4.2</span>
+        <span style="background: rgba(56, 189, 248, 0.2); padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; letter-spacing: 0.02em;">v2.4.3</span>
       </div>
       <h1>Brandstof-informatie Nederland</h1>
       <p class="subtitle">
@@ -2450,7 +2453,7 @@
 
     <footer>
       <div>💡 <em>Klik op een tankstation of de knop <strong>🗺️ Kaart & Route</strong> om het Google Maps kaartje en de routeplanner te openen.</em></div>
-      <div>Brandstof-informatie Nederland • Peter Vroon • Versie 2.4.2</div>
+      <div>Brandstof-informatie Nederland • Peter Vroon • Versie 2.4.3</div>
     </footer>
   </div>
 
@@ -3926,7 +3929,7 @@
       try {
         let wasmBytes;
         try {
-          const response = await fetch("hello.wasm");
+          const response = await fetch("hello.wasm?v=2.4.3_" + Date.now(), { cache: "no-store" });
           if (!response.ok) throw new Error("Fetch failed");
           wasmBytes = await response.arrayBuffer();
         } catch (fetchErr) {
@@ -3973,18 +3976,57 @@
       }
     }
 
+    const APP_VERSION = "2.4.3";
+
+    // Grondige opschoning bij opstarten van de app:
+    // 1. Verwijdert alle oude cookies uit de browser
+    // 2. Schoon verouderde storage op zodat altijd de nieuwste informatie wordt geladen
+    function cleanupOldCookiesAndStorage() {
+      try {
+        if (typeof document !== "undefined" && document.cookie) {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const eqPos = cookies[i].indexOf("=");
+            const name = eqPos > -1 ? cookies[i].substr(0, eqPos).trim() : cookies[i].trim();
+            if (name) {
+              document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+              if (typeof window !== "undefined" && window.location && window.location.hostname) {
+                document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=" + window.location.hostname;
+              }
+            }
+          }
+        }
+      } catch (e) {}
+
+      try {
+        const storedVersion = StorageService.get("brandstof_app_version");
+        if (storedVersion !== APP_VERSION) {
+          StorageService.set("brandstof_app_version", APP_VERSION);
+        }
+      } catch (e) {}
+    }
+
     function loadSavedPreferences() {
+      // Schoon altijd eerst oude cookies en data op
+      cleanupOldCookiesAndStorage();
+
       const savedPc = StorageService.get("brandstof_saved_postcode");
       const inputEl = document.getElementById("radiusPostcodeInput");
       if (savedPc) {
-        if (inputEl) inputEl.value = savedPc;
         const resolved = resolveLocation(savedPc);
         if (resolved) {
+          if (inputEl) inputEl.value = savedPc;
           radiusCenter = resolved;
-          showSavedIndicator("💾 Geladen uit browser storage");
+          showSavedIndicator("💾 Actuele gegevens geladen");
+        } else {
+          // Oude ongeldige postcode opruimen
+          StorageService.remove("brandstof_saved_postcode");
+          if (inputEl) inputEl.value = "7311";
+          radiusCenter = { lat: 52.2150, lng: 5.9650, name: "Apeldoorn Centrum (7311)" };
         }
       } else {
         if (inputEl && !inputEl.value) inputEl.value = "7311";
+        radiusCenter = { lat: 52.2150, lng: 5.9650, name: "Apeldoorn Centrum (7311)" };
       }
 
       const savedRadius = StorageService.get("brandstof_saved_radius");
