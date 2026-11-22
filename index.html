@@ -2241,7 +2241,7 @@
             </span>
           </label>
           <div class="radius-input-group">
-            <input type="text" id="radiusPostcodeInput" class="radius-input" placeholder="bijv. 7311 of Apeldoorn" value="" onkeydown="handlePostcodeKey(event)" onchange="savePostcodeToStorage(this.value)" oninput="handlePostcodeTyping(this.value)" />
+            <input type="text" id="radiusPostcodeInput" class="radius-input" placeholder="bijv. 3511 Utrecht of 7311 Apeldoorn" value="" onkeydown="handlePostcodeKey(event)" onchange="savePostcodeToStorage(this.value)" oninput="handlePostcodeTyping(this.value)" />
             <button class="btn-confirm-postcode" onclick="confirmPostcode()" title="Bevestig postcode en sla op in browser storage">
               ↵ Zoek
             </button>
@@ -3471,11 +3471,23 @@
       "7773": { lat: 52.5620, lng: 6.6380, name: "Hardenberg Kruiwiel" },
 
       // Randstad & Zuid-Holland
-      "1012": { lat: 52.3676, lng: 4.9041, name: "Amsterdam Centrum" },
-      "3011": { lat: 51.9244, lng: 4.4777, name: "Rotterdam Centrum" },
-      "3045": { lat: 51.9480, lng: 4.4560, name: "Rotterdam Bovendijk / Schiebroek" },
-      "2511": { lat: 52.0705, lng: 4.3007, name: "Den Haag Centrum" },
-      "3511": { lat: 52.0907, lng: 5.1214, name: "Utrecht Centrum" },
+      "1012": { lat: 52.3676, lng: 4.9041, name: "1012 Amsterdam (Centrum)" },
+      "3011": { lat: 51.9244, lng: 4.4777, name: "3011 Rotterdam (Centrum)" },
+      "3045": { lat: 51.9480, lng: 4.4560, name: "3045 Rotterdam (Schiebroek)" },
+      "2511": { lat: 52.0705, lng: 4.3007, name: "2511 Den Haag (Centrum)" },
+
+      // Utrecht (volledige dekking wijken & centrum)
+      "3511": { lat: 52.0907, lng: 5.1214, name: "3511 Utrecht (Binnenstad / Centrum)" },
+      "3512": { lat: 52.0920, lng: 5.1290, name: "3512 Utrecht (Oost / Maliekwartier)" },
+      "3521": { lat: 52.0830, lng: 5.1050, name: "3521 Utrecht (Dichterswijk / Jaarbeurs)" },
+      "3526": { lat: 52.0620, lng: 5.1080, name: "3526 Utrecht (Kanaleneiland / Europalaan)" },
+      "3531": { lat: 52.0940, lng: 5.0970, name: "3531 Utrecht (Lombok / Majellapark)" },
+      "3541": { lat: 52.1020, lng: 5.0450, name: "3541 Utrecht (Leidsche Rijn)" },
+      "3544": { lat: 52.1150, lng: 5.0280, name: "3544 Utrecht (Haarrijn / Vleuten)" },
+      "3551": { lat: 52.1060, lng: 5.1010, name: "3551 Utrecht (Zuilen / Ondiep)" },
+      "3571": { lat: 52.1050, lng: 5.1320, name: "3571 Utrecht (Tuindorp / Voordorp)" },
+      "3581": { lat: 52.0870, lng: 5.1430, name: "3581 Utrecht (Oudwijk / Wilhelminapark)" },
+      "3584": { lat: 52.0850, lng: 5.1700, name: "3584 Utrecht (Science Park / De Uithof)" },
 
       // Noord-Brabant & Limburg
       "5611": { lat: 51.4416, lng: 5.4697, name: "Eindhoven Centrum" },
@@ -3669,8 +3681,10 @@
         savePostcodeToStorage(val);
         executeRadiusSearch();
         if (shouldBlur && inputEl) inputEl.blur();
+        showSavedIndicator(`✓ Gevonden: ${resolved.name}`);
       } else if (shouldBlur) {
-        alert("Postcode of plaats '" + val + "' niet gevonden. Voer een 4-cijferige postcode (bijv. 7311 of 7312 ah) of geldige plaatsnaam in en druk op Enter.");
+        showSavedIndicator(`⚠️ Niet gevonden: ${val}`);
+        alert("Postcode of plaats '" + val + "' niet gevonden. Voer een postcode met optionele plaatsnaam in (bijv. '3511 Utrecht' of '7311 Apeldoorn') en druk op Enter.");
       }
     }
 
@@ -3832,6 +3846,11 @@
       // 4. Render Winner Banner
       renderWinnerBanner(stationsInRadius);
 
+      document.getElementById("radiusActiveBadge").innerText = `🎯 ${stationsInRadius.length} station${stationsInRadius.length === 1 ? '' : 's'} binnen ${radiusKm} km`;
+      document.getElementById("radiusActiveBadge").style.background = "rgba(34, 197, 94, 0.15)";
+      document.getElementById("radiusActiveBadge").style.color = "var(--green)";
+      document.getElementById("radiusActiveBadge").style.borderColor = "rgba(34, 197, 94, 0.3)";
+
       // 5. Update tabel met deze stations
       currentFilteredStations = stationsInRadius;
       updateUI(stationsInRadius, `Straal ${radiusKm} km rond ${radiusCenter.name}`);
@@ -3900,7 +3919,7 @@
               </div>
               <div class="winner-station-name">${winner.name}</div>
               <div class="winner-station-sub">
-                <span>📍 ${winner.address}, ${winner.city} ${winner.postcode ? `(${winner.postcode})` : ''}</span>
+                <span>📍 ${winner.address}, ${winner.postcode ? `${winner.postcode} ` : ''}${winner.city}</span>
                 <span class="type-pill type-${winner.type.toLowerCase()}">${winner.type}</span>
                 <span class="winner-dist-badge">📍 ${formatDistance(winner.distKm)} afstand</span>
               </div>
@@ -4190,7 +4209,7 @@
               ${isWinnerInRadius ? '<span class="row-winner-tag">🏆 GOEDKOOPST</span>' : ''}
               ${s.distKm !== undefined ? `<span class="distance-cell-badge">📍 ${formatDistance(s.distKm)}</span>` : ''}
             </div>
-            <div class="station-address">${s.address}${s.postcode ? ` • ${s.postcode}` : ''}</div>
+            <div class="station-address">${s.address}${s.postcode ? ` • ${s.postcode} ${s.city}` : ` • ${s.city}`}</div>
             <div class="mobile-meta-row">
               <strong>📍 ${s.city}</strong>
               <span>•</span>
@@ -4259,7 +4278,7 @@
     function displayStationInModal(station) {
       currentModalStation = station;
       document.getElementById("modalStationName").innerText = station.name;
-      document.getElementById("modalStationAddress").innerText = `${station.address}, ${station.city}`;
+      document.getElementById("modalStationAddress").innerText = `${station.address}, ${station.postcode ? `${station.postcode} ` : ''}${station.city}`;
       
       const typePill = document.getElementById("modalStationType");
       typePill.innerText = station.type;
