@@ -1,0 +1,48 @@
+{
+  "app_name": "Brandstof-informatie",
+  "version": "3.0.0",
+  "build": 1,
+  "timestamp": "2026-11-27T22:19:07.870625+00:00",
+  "features": [
+    {
+      "icon": "✅",
+      "title": "Alleen echte gegevens",
+      "desc": "Eerdere versies toonden berekende prijzen per tankstation en een verzonnen dagverschil. Die zijn verwijderd. Alles wat nu getoond wordt komt uit een echte bron, met de bron en peildatum erbij."
+    },
+    {
+      "icon": "📊",
+      "title": "Landelijk gemiddelde pompprijs (CBS)",
+      "desc": "Euro 95, Diesel en LPG: gemiddelde dagprijs over alle Nederlandse tankstations uit CBS StatLine 80416NED, met verschil t.o.v. de vorige dag en een week eerder."
+    },
+    {
+      "icon": "📈",
+      "title": "Prijsontwikkeling",
+      "desc": "Grafiek van 30 dagen tot 5 jaar met echte CBS-dagprijzen. Beweeg met de muis of tik op de grafiek voor de exacte prijs per dag. Per brandstof aan of uit te zetten."
+    },
+    {
+      "icon": "📍",
+      "title": "Tankstations in de buurt (OpenStreetMap)",
+      "desc": "Zoek op postcode of plaats (bijv. 3511 Utrecht) of met GPS. Echte tankstations binnen 3, 5, 10 of 25 km met merk, adres, openingstijden en brandstoffen voor zover bekend in OpenStreetMap."
+    },
+    {
+      "icon": "🧭",
+      "title": "Locatie via PDOK",
+      "desc": "Postcode en plaatsnaam worden opgezocht via de officiële PDOK Locatieserver; ontbrekende adressen worden daar ook aangevuld."
+    },
+    {
+      "icon": "🗺️",
+      "title": "Route met 1 tik",
+      "desc": "Elke stationskaart heeft een routeknop naar Google Maps."
+    },
+    {
+      "icon": "ℹ️",
+      "title": "Geen prijs per pomp",
+      "desc": "Er bestaat geen open, betrouwbare bron voor de prijs per pomp. Daarom toont de app die bewust niet."
+    },
+    {
+      "icon": "🔄",
+      "title": "Altijd actueel",
+      "desc": "De app controleert zelf of er een nieuwe versie online staat en ververst automatisch."
+    }
+  ]
+}
