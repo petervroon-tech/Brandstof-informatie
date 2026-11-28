@@ -1,48 +1,43 @@
 {
   "app_name": "Brandstof-informatie",
-  "version": "3.1.0",
-  "build": 2,
-  "timestamp": "2026-11-28T00:32:00.000000+00:00",
+  "version": "3.2.0",
+  "build": 3,
+  "timestamp": "2026-11-28T00:42:00.000000+00:00",
   "features": [
     {
-      "icon": "📊",
-      "title": "Officiële CBS Dagprijzen gekoppeld",
-      "desc": "Euro 95, Diesel en LPG: actuele landelijke dagprijzen rechtstreeks gekoppeld uit CBS StatLine 80416NED als transparante referentie op elk tankstation."
-    },
-    {
       "icon": "⛽",
-      "title": "Check actuele pompprijs per station",
-      "desc": "Elk tankstation heeft een directe verificatieknop naar Google Maps om actuele realtime pompprijzen en het fysieke prijsbord live te controleren."
-    },
-    {
-      "icon": "🏷️",
-      "title": "Snel filter op onbemande stations",
-      "desc": "Filter direct op onbemande tankstations (zoals Fieten Olie, Tango, TinQ). Deze zijn in de praktijk doorgaans 10 tot 15 cent per liter voordeliger."
-    },
-    {
-      "icon": "⚖️",
-      "title": "100% Echte gegevens (ACM-richtlijn)",
-      "desc": "Conform wetgeving tegen misleidende handelspraktijken toont deze app geen nepberichten of verzonnen prijzen. Alles komt uit gecontroleerde open bronnen."
-    },
-    {
-      "icon": "🧹",
-      "title": "Schone start zonder oude cookies/cache",
-      "desc": "Bij het opstarten worden verouderde gegevens en cookies automatisch opgeschoond zodat altijd de meest actuele informatie getoond wordt."
+      "title": "Echte actuele prijzen per pomp",
+      "desc": "Elk tankstation toont nu het officiële live pompprijs-ticket (DirectLease TankService) met de actuele gemeten kassaprijs voor Euro 95, Diesel en Super 98, exact adres en openingstijden."
     },
     {
       "icon": "📍",
-      "title": "Tankstations in de buurt (OpenStreetMap & PDOK)",
-      "desc": "Echte tankstations binnen 3, 5, 10 of 25 km met merk, adres, openingstijden en brandstoffen, gesorteerd op afstand."
+      "title": "3.748 Nederlandse tankstations gekoppeld",
+      "desc": "Alle officiële tankstations in Nederland zijn opgenomen en direct lokaal doorzoekbaar op postcode, plaats of GPS."
+    },
+    {
+      "icon": "🏷️",
+      "title": "Onbemand filter (voordeligst)",
+      "desc": "Filter direct op onbemande stations (zoals Fieten Olie, Tango, TinQ) die doorgaans de laagste pompprijs hanteren."
+    },
+    {
+      "icon": "📊",
+      "title": "Landelijke CBS Dagprijzen",
+      "desc": "Gemiddelde dagprijzen en historische prijsgrafiek van het CBS (StatLine 80416NED) als landelijk referentiekader."
+    },
+    {
+      "icon": "⚖️",
+      "title": "100% Eerlijk en betrouwbaar (ACM)",
+      "desc": "Geen nepberichten of gesimuleerde prijzen. Alles is herleidbaar naar officiële bronnen conform consumentenwetgeving."
+    },
+    {
+      "icon": "🧹",
+      "title": "Schone opstart zonder oude cookies",
+      "desc": "Verouderde cookies en cache worden bij elke opstart gewist voor altijd actuele gegevens."
     },
     {
       "icon": "🗺️",
-      "title": "Route met 1 tik",
-      "desc": "Elke stationskaart heeft een directe routeknop naar Google Maps navigatie."
-    },
-    {
-      "icon": "🔄",
-      "title": "Altijd actueel",
-      "desc": "De app controleert op de achtergrond of er een nieuwere versie beschikbaar is en werkt zichzelf automatisch bij."
+      "title": "Route & Kaart",
+      "desc": "Directe navigatie en kaartweergave via Google Maps met 1 tik."
     }
   ]
 }
