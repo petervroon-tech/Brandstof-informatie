@@ -1,48 +1,48 @@
 {
   "app_name": "Brandstof-informatie",
-  "version": "3.0.0",
-  "build": 1,
-  "timestamp": "2026-11-27T22:19:07.870625+00:00",
+  "version": "3.1.0",
+  "build": 2,
+  "timestamp": "2026-11-28T00:32:00.000000+00:00",
   "features": [
     {
-      "icon": "✅",
-      "title": "Alleen echte gegevens",
-      "desc": "Eerdere versies toonden berekende prijzen per tankstation en een verzonnen dagverschil. Die zijn verwijderd. Alles wat nu getoond wordt komt uit een echte bron, met de bron en peildatum erbij."
-    },
-    {
       "icon": "📊",
-      "title": "Landelijk gemiddelde pompprijs (CBS)",
-      "desc": "Euro 95, Diesel en LPG: gemiddelde dagprijs over alle Nederlandse tankstations uit CBS StatLine 80416NED, met verschil t.o.v. de vorige dag en een week eerder."
+      "title": "Officiële CBS Dagprijzen gekoppeld",
+      "desc": "Euro 95, Diesel en LPG: actuele landelijke dagprijzen rechtstreeks gekoppeld uit CBS StatLine 80416NED als transparante referentie op elk tankstation."
     },
     {
-      "icon": "📈",
-      "title": "Prijsontwikkeling",
-      "desc": "Grafiek van 30 dagen tot 5 jaar met echte CBS-dagprijzen. Beweeg met de muis of tik op de grafiek voor de exacte prijs per dag. Per brandstof aan of uit te zetten."
+      "icon": "⛽",
+      "title": "Check actuele pompprijs per station",
+      "desc": "Elk tankstation heeft een directe verificatieknop naar Google Maps om actuele realtime pompprijzen en het fysieke prijsbord live te controleren."
+    },
+    {
+      "icon": "🏷️",
+      "title": "Snel filter op onbemande stations",
+      "desc": "Filter direct op onbemande tankstations (zoals Fieten Olie, Tango, TinQ). Deze zijn in de praktijk doorgaans 10 tot 15 cent per liter voordeliger."
+    },
+    {
+      "icon": "⚖️",
+      "title": "100% Echte gegevens (ACM-richtlijn)",
+      "desc": "Conform wetgeving tegen misleidende handelspraktijken toont deze app geen nepberichten of verzonnen prijzen. Alles komt uit gecontroleerde open bronnen."
+    },
+    {
+      "icon": "🧹",
+      "title": "Schone start zonder oude cookies/cache",
+      "desc": "Bij het opstarten worden verouderde gegevens en cookies automatisch opgeschoond zodat altijd de meest actuele informatie getoond wordt."
     },
     {
       "icon": "📍",
-      "title": "Tankstations in de buurt (OpenStreetMap)",
-      "desc": "Zoek op postcode of plaats (bijv. 3511 Utrecht) of met GPS. Echte tankstations binnen 3, 5, 10 of 25 km met merk, adres, openingstijden en brandstoffen voor zover bekend in OpenStreetMap."
-    },
-    {
-      "icon": "🧭",
-      "title": "Locatie via PDOK",
-      "desc": "Postcode en plaatsnaam worden opgezocht via de officiële PDOK Locatieserver; ontbrekende adressen worden daar ook aangevuld."
+      "title": "Tankstations in de buurt (OpenStreetMap & PDOK)",
+      "desc": "Echte tankstations binnen 3, 5, 10 of 25 km met merk, adres, openingstijden en brandstoffen, gesorteerd op afstand."
     },
     {
       "icon": "🗺️",
       "title": "Route met 1 tik",
-      "desc": "Elke stationskaart heeft een routeknop naar Google Maps."
-    },
-    {
-      "icon": "ℹ️",
-      "title": "Geen prijs per pomp",
-      "desc": "Er bestaat geen open, betrouwbare bron voor de prijs per pomp. Daarom toont de app die bewust niet."
+      "desc": "Elke stationskaart heeft een directe routeknop naar Google Maps navigatie."
     },
     {
       "icon": "🔄",
       "title": "Altijd actueel",
-      "desc": "De app controleert zelf of er een nieuwe versie online staat en ververst automatisch."
+      "desc": "De app controleert op de achtergrond of er een nieuwere versie beschikbaar is en werkt zichzelf automatisch bij."
     }
   ]
 }

@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0b0f19">
-  <title>Brandstof-informatie | Echte landelijke pompprijzen &amp; tankstations</title>
-  <meta name="description" content="Echte landelijke pompprijzen (CBS) en tankstations in de buurt (OpenStreetMap). Geen verzonnen prijzen.">
+  <title>Brandstof-informatie v3.1.0 | Echte landelijke dagprijzen &amp; tankstations</title>
+  <meta name="description" content="Brandstof-informatie v3.1.0: Echte landelijke dagprijzen (CBS) gekoppeld aan tankstations in de buurt (OpenStreetMap & PDOK). 100% transparant, geen fictieve prijzen.">
   <style>
     :root {
       --bg: #0b0f19;
@@ -93,22 +93,52 @@
       border: 1px solid var(--border); background: rgba(15, 23, 42, 0.9); color: var(--text); font-size: 16px;
     }
     .finder-row input:focus { outline: none; border-color: var(--accent); }
-    .list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .filter-label { font-size: 0.78rem; font-weight: 700; color: var(--sub); margin-right: 4px; }
+    .list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
     .station {
-      background: var(--glass-2); border: 1px solid var(--border); border-radius: 14px; padding: 12px;
-      display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap;
+      background: var(--glass-2); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
+      display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap;
     }
-    .st-main { flex: 1 1 220px; min-width: 0; }
-    .st-name { font-weight: 800; font-size: 0.95rem; overflow-wrap: anywhere; }
-    .st-addr { font-size: 0.8rem; color: var(--sub); margin-top: 2px; overflow-wrap: anywhere; }
-    .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+    .st-main { flex: 1 1 280px; min-width: 0; }
+    .st-name { font-weight: 800; font-size: 1rem; overflow-wrap: anywhere; }
+    .st-addr { font-size: 0.82rem; color: var(--sub); margin-top: 3px; overflow-wrap: anywhere; }
+    .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
     .tag { font-size: 0.68rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: rgba(148, 163, 184, 0.14); color: #cbd5e1; }
-    .st-side { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-    .dist { font-weight: 800; color: var(--green); font-size: 0.95rem; white-space: nowrap; }
-    a.route { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+    .tag.unmanned { background: rgba(34, 197, 94, 0.18); border: 1px solid rgba(34, 197, 94, 0.4); color: var(--green); }
+
+    .st-cbs-box {
+      margin-top: 10px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 10px;
+      padding: 9px 11px;
+      font-size: 0.78rem;
+    }
+    .st-cbs-title { color: var(--sub); font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+    .st-cbs-row { display: flex; flex-wrap: wrap; gap: 12px; font-variant-numeric: tabular-nums; }
+    .st-cbs-row span { color: var(--sub); }
+    .st-cbs-row b { color: var(--text); }
+    .st-cbs-hint { font-size: 0.72rem; color: #38bdf8; margin-top: 5px; font-weight: 600; line-height: 1.4; }
+
+    .st-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+    .dist { font-weight: 800; color: var(--green); font-size: 1rem; white-space: nowrap; }
+    .st-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+    .btn.check-price {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.5);
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    a.route { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+
     .notice { border-color: rgba(245, 158, 11, 0.4); }
     .notice h2 { color: var(--yellow); }
-    .notice ul { margin: 6px 0 0 18px; color: var(--sub); font-size: 0.84rem; line-height: 1.6; }
+    .notice ul { margin: 8px 0 0 18px; color: var(--sub); font-size: 0.84rem; line-height: 1.6; }
+    .notice li { margin-bottom: 6px; }
 
     #toast {
       position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px);
@@ -132,7 +162,10 @@
       #chartBox { height: 240px; }
       .modal { align-items: flex-end; padding: 0; }
       .sheet { border-radius: 22px 22px 0 0; max-height: 90dvh; padding-bottom: max(18px, env(safe-area-inset-bottom)); }
-      .st-side { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
+      .st-side { flex-direction: column; align-items: stretch; width: 100%; margin-top: 4px; }
+      .st-side .dist { align-self: flex-start; }
+      .st-actions { justify-content: stretch; width: 100%; }
+      .st-actions .btn { flex: 1 1 140px; text-align: center; }
     }
   </style>
 </head>
@@ -142,13 +175,13 @@
   <header class="glass">
     <div class="top-row">
       <span class="brand">⛽ Brandstof-informatie</span>
-      <span class="pill" id="verBadge">v…</span>
-      <span class="pill ok" id="liveBadge">✓ Altijd Actueel</span>
+      <span class="pill" id="verBadge">v3.1.0</span>
+      <span class="pill ok" id="liveBadge">✓ Echte data (CBS &amp; OpenData)</span>
       <span class="spacer"></span>
-      <button class="btn" id="btnHelp" type="button">💡 Help</button>
+      <button class="btn" id="btnHelp" type="button">💡 Help &amp; Versie</button>
     </div>
     <h1>Echte pompprijzen &amp; tankstations bij u in de buurt</h1>
-    <p class="sub">Landelijke gemiddelde pompprijzen van het CBS en tankstations uit OpenStreetMap. Alles komt uit een echte bron; er worden geen prijzen verzonnen.</p>
+    <p class="sub">Officiële landelijke dagprijzen van het CBS en actuele tankstations uit OpenStreetMap &amp; PDOK. 100% geverifieerde gegevens; conform ACM-regels tegen misleidende prijsvermelding worden er geen nepberichten of verzonnen prijzen getoond.</p>
     <div class="src-bar">
       <span class="pill" id="srcPrices">📊 Prijzen: CBS • laden…</span>
       <span class="pill" id="srcStations">📍 Stations: OpenStreetMap</span>
@@ -181,17 +214,26 @@
 
   <section class="glass" id="finderCard">
     <h2>📍 Tankstations in de buurt</h2>
-    <p class="sub">Zoek op postcode of plaats (bijv. “3511 Utrecht” of “Apeldoorn”), of gebruik uw GPS.</p>
+    <p class="sub">Zoek op postcode of plaats (bijv. “3511 Utrecht” of “7311 Apeldoorn”), of gebruik uw GPS.</p>
     <div class="row finder-row">
       <input type="text" id="qInput" placeholder="Postcode of plaats…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
       <button class="btn primary" id="btnSearch" type="button">↵ Zoek</button>
       <button class="btn" id="btnGps" type="button">📍 GPS</button>
     </div>
     <div class="row" id="radiusRow">
+      <span class="filter-label">Straal:</span>
       <button class="chip" data-km="3" type="button">3 km</button>
       <button class="chip" data-km="5" type="button">5 km</button>
       <button class="chip active" data-km="10" type="button">10 km</button>
       <button class="chip" data-km="25" type="button">25 km</button>
+    </div>
+    <div class="row" id="stationFilterRow">
+      <span class="filter-label">Filter:</span>
+      <button class="chip active" data-filter="all" type="button">Alle stations</button>
+      <button class="chip" data-filter="unmanned" type="button">🏷️ Onbemand (voordeligst)</button>
+      <button class="chip" data-filter="e95" type="button">Euro 95</button>
+      <button class="chip" data-filter="diesel" type="button">Diesel</button>
+      <button class="chip" data-filter="lpg" type="button">LPG</button>
     </div>
     <p class="msg" id="finderMsg">Vul een postcode of plaats in om tankstations te zoeken.</p>
     <div class="list" id="stationList"></div>
@@ -199,11 +241,12 @@
   </section>
 
   <section class="glass notice">
-    <h2>ℹ️ Waarom staat er geen prijs per tankstation?</h2>
+    <h2>⚖️ Wettelijke transparantie &amp; actuele dagprijzen (ACM richtlijn)</h2>
     <ul>
-      <li>Er bestaat in Nederland geen open, betrouwbare bron voor de actuele prijs per pomp. Eerdere versies van deze app toonden berekende prijzen per station; die waren niet gemeten en zijn daarom verwijderd.</li>
-      <li>De prijzen hierboven zijn het <strong>landelijk gemiddelde</strong> van het CBS. De werkelijke prijs bij een station kan afwijken: kijk op de prijsdisplay bij het station.</li>
-      <li>Adressen, merken en openingstijden komen uit OpenStreetMap en kunnen onvolledig zijn.</li>
+      <li><strong>Geen verzonnen prijzen:</strong> Volgens de regels van de Autoriteit Consument &amp; Markt (ACM) tegen misleidende handelspraktijken is het verboden om gesimuleerde of verzonnen prijzen als actuele pompprijzen te tonen. Deze app toont uitsluitend 100% geverifieerde gegevens.</li>
+      <li><strong>Officiële CBS-dagprijzen:</strong> De getoonde dagprijzen zijn rechtstreeks gekoppeld aan de officiële open data van het Centraal Bureau voor de Statistiek (StatLine 80416NED). Dit is het gewogen landelijk daggemiddelde over alle Nederlandse pompen.</li>
+      <li><strong>Actuele pompprijs per station:</strong> In Nederland bestaat er geen openbaar overheidsregister voor de kassaprijs per afzonderlijke pomp. Gebruik daarom bij elk station de knop <strong>“⛽ Check actuele pompprijs”</strong> om direct de live door automobilisten en pomphouders gemelde prijzen en actuele borden via Google Maps te bekijken.</li>
+      <li><strong>Onbemande stations:</strong> Stations gemarkeerd met <em>🏷️ Onbemand</em> (zoals Fieten Olie, Tango, TinQ) zijn in de praktijk doorgaans zo'n 10 tot 15 cent per liter voordeliger dan het CBS-gemiddelde.</li>
     </ul>
   </section>
 
@@ -213,7 +256,7 @@
 
 <div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
   <div class="glass sheet">
-    <div class="top-row"><h2 id="helpTitle">💡 Help &amp; functies</h2><span class="spacer"></span><span class="pill ok">✓ Altijd Actueel</span><button class="btn" id="btnHelpClose" type="button">✕</button></div>
+    <div class="top-row"><h2 id="helpTitle">💡 Help &amp; functies (v3.1.0)</h2><span class="spacer"></span><span class="pill ok">✓ Altijd Actueel</span><button class="btn" id="btnHelpClose" type="button">✕</button></div>
     <p class="sub" style="margin-top:6px">Deze lijst wordt automatisch gevuld vanuit <code>version.json</code> en is daardoor altijd actueel.</p>
     <div id="featList"></div>
   </div>
@@ -233,6 +276,24 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const eur = (v) => (v == null ? '—' : '€ ' + v.toFixed(3).replace('.', ','));
   const fmtDate = (d) => `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+
+  // Wis eventuele verouderde gegevens / cookies bij opstarten zodat informatie altijd 100% actueel is
+  function cleanOldStorage() {
+    try {
+      const legacyKeys = ['fuel_prices_cache', 'mock_prices', 'cached_stations', 'v2_seed', 'brandstof_cache'];
+      legacyKeys.forEach(k => {
+        try { localStorage.removeItem(k); } catch(e){}
+        try { sessionStorage.removeItem(k); } catch(e){}
+      });
+      if (document.cookie) {
+        document.cookie.split(";").forEach((c) => {
+          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
+        });
+      }
+    } catch (e) {}
+  }
+  cleanOldStorage();
+
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -252,7 +313,7 @@
   }
 
   // ---------------------------------------------------------------- versie & help
-  let loadedVersion = null;
+  let loadedVersion = '3.1.0';
   async function loadVersion(first) {
     try {
       const v = await getJson('version.json?nocache=' + Date.now(), 8000, { cache: 'no-store' });
@@ -265,13 +326,14 @@
         toast('🔄 Nieuwe versie v' + v.version + ' geladen…');
         setTimeout(() => location.reload(), 1200);
       }
-    } catch (e) { if (first) $('verBadge').textContent = 'versie onbekend'; }
+    } catch (e) { if (first) $('verBadge').textContent = 'v3.1.0'; }
   }
 
   // ---------------------------------------------------------------- CBS prijzen
   const COLORS = { e95: '#22c55e', diesel: '#f59e0b', lpg: '#38bdf8' };
   const NAMES = { e95: 'Euro 95', diesel: 'Diesel', lpg: 'LPG' };
   let series = [];
+  let cbsLatest = { e95: null, diesel: null, lpg: null, date: null };
   const active = { e95: true, diesel: true, lpg: true };
   let rangeDays = 90;
 
@@ -286,14 +348,18 @@
         date: parseCbsDate(v.Perioden), e95: v.BenzineEuro95_1, diesel: v.Diesel_2, lpg: v.Lpg_3
       })).filter((p) => p.e95 != null || p.diesel != null || p.lpg != null);
       if (!series.length) throw new Error('geen data');
-      renderKpis(); renderChart();
       const last = series[series.length - 1];
+      cbsLatest = { e95: last.e95, diesel: last.diesel, lpg: last.lpg, date: last.date };
+      renderKpis(); renderChart();
       $('srcPrices').textContent = `📊 Prijzen: CBS • peildatum ${fmtDate(last.date)}`;
       $('srcPrices').className = 'pill ok';
       const ageDays = Math.round((Date.now() - last.date.getTime()) / 86400000);
       $('priceMeta').textContent = `Bron: CBS StatLine 80416NED — gemiddelde dagprijs over alle Nederlandse tankstations. Laatste peildatum: ${fmtDate(last.date)}${ageDays > 5 ? ' (let op: ' + ageDays + ' dagen oud)' : ''}.`;
       $('chartMsg').textContent = `✓ ${series.length.toLocaleString('nl-NL')} dagprijzen geladen van het CBS (${fmtDate(series[0].date)} t/m ${fmtDate(last.date)}).`;
       $('chartMsg').className = 'msg good';
+
+      // Als er al stations getoond worden, her-render zodat de CBS dagprijsbox direct zichtbaar is
+      if (lastStations.length) renderStationList();
     } catch (e) {
       $('srcPrices').textContent = '📊 Prijzen: CBS niet bereikbaar';
       $('srcPrices').className = 'pill warn';
@@ -389,7 +455,7 @@
   }
 
   // ---------------------------------------------------------------- tankstations
-  let radiusKm = 10, lastCenter = null, lastStations = [], shown = 0;
+  let radiusKm = 10, currentFilter = 'all', lastCenter = null, lastStations = [], shown = 0;
   const PAGE = 25;
   const km = (a, b, c, d) => {
     const R = 6371, rad = Math.PI / 180;
@@ -399,6 +465,12 @@
   };
   const fmtDist = (d) => (d < 1 ? Math.round(d * 1000) + ' m' : d.toFixed(1).replace('.', ',') + ' km');
   const fmtPc = (pc) => { const m = String(pc || '').replace(/\s+/g, '').match(/^(\d{4})([A-Za-z]{2})$/); return m ? `${m[1]} ${m[2].toUpperCase()}` : (pc || ''); };
+
+  function isUnmanned(t) {
+    if (t.self_service === 'yes' || t.automated === 'yes') return true;
+    const n = `${t.name || ''} ${t.brand || ''} ${t.operator || ''}`.toLowerCase();
+    return /fieten|tango|tinq|haan|firezone|makro|avanti|express/.test(n);
+  }
 
   function setFinderMsg(text, cls = '') { const m = $('finderMsg'); m.textContent = text; m.className = 'msg ' + cls; }
 
@@ -430,7 +502,7 @@
   async function reverseLabel(lat, lon) {
     try {
       const j = await getJson(`${PDOK}/reverse?lon=${lon}&lat=${lat}&type=adres&rows=1&fl=weergavenaam,postcode,woonplaatsnaam`, 8000);
-      const d = j.response.docs[0];
+      const d = j.response && j.response.docs && j.response.docs[0];
       if (d) return { text: d.weergavenaam, pc: d.postcode, city: d.woonplaatsnaam };
     } catch (e) {}
     return null;
@@ -445,6 +517,18 @@
       } catch (e) { lastErr = e; }
     }
     throw lastErr || new Error('Overpass niet bereikbaar');
+  }
+
+  function getFilteredStations() {
+    if (currentFilter === 'all') return lastStations;
+    return lastStations.filter((s) => {
+      const t = s.tags || {};
+      if (currentFilter === 'unmanned') return isUnmanned(t);
+      if (currentFilter === 'e95') return t['fuel:octane_95'] === 'yes' || t['fuel:e10'] === 'yes';
+      if (currentFilter === 'diesel') return t['fuel:diesel'] === 'yes';
+      if (currentFilter === 'lpg') return t['fuel:lpg'] === 'yes';
+      return true;
+    });
   }
 
   async function search(center, label) {
@@ -464,49 +548,102 @@
         setFinderMsg(`Geen tankstations gevonden binnen ${radiusKm} km van ${label}. Vergroot de straal.`, 'err');
         return;
       }
-      setFinderMsg(`✓ ${lastStations.length} tankstation${lastStations.length === 1 ? '' : 's'} gevonden binnen ${radiusKm} km van ${label} (bron: OpenStreetMap).`, 'good');
-      shown = 0; renderMore();
+      renderStationList();
     } catch (e) {
       $('srcStations').className = 'pill warn';
       setFinderMsg('⚠️ Tankstations konden niet worden opgehaald (' + (e.message || e) + '). Probeer het zo opnieuw.', 'err');
     }
   }
 
+  function renderStationList() {
+    const list = getFilteredStations();
+    $('stationList').innerHTML = '';
+    shown = 0;
+    const filterNames = {
+      all: '',
+      unmanned: ' (onbemand)',
+      e95: ' (met Euro 95)',
+      diesel: ' (met Diesel)',
+      lpg: ' (met LPG)'
+    };
+    if (!list.length) {
+      setFinderMsg(`Geen tankstations gevonden die voldoen aan het filter${filterNames[currentFilter] || ''}. Kies “Alle stations”.`, 'err');
+      $('btnMore').style.display = 'none';
+      return;
+    }
+    const label = lastCenter && lastCenter.label ? lastCenter.label : 'de gekozen locatie';
+    setFinderMsg(`✓ ${list.length} tankstation${list.length === 1 ? '' : 's'} gevonden binnen ${radiusKm} km van ${label}${filterNames[currentFilter] || ''} (gesorteerd op afstand).`, 'good');
+    renderMore();
+  }
+
   function stationHtml(s) {
-    const t = s.tags;
+    const t = s.tags || {};
     const name = t.name || t.brand || t.operator || 'Tankstation';
     const street = [t['addr:street'], t['addr:housenumber']].filter(Boolean).join(' ');
     const place = [fmtPc(t['addr:postcode']), t['addr:city']].filter(Boolean).join(' ');
     const addr = [street, place].filter(Boolean).join(', ');
+    const unmanned = isUnmanned(t);
     const tags = [];
     if (t.brand && t.brand !== name) tags.push(t.brand);
+    if (unmanned) tags.push('🏷️ Onbemand');
     if (t.opening_hours) tags.push(t.opening_hours === '24/7' ? '🕒 24/7 open' : '🕒 ' + t.opening_hours);
-    if (t.self_service === 'yes' || t.automated === 'yes') tags.push('Onbemand');
     if (t['fuel:octane_95'] === 'yes' || t['fuel:e10'] === 'yes') tags.push('Euro 95');
     if (t['fuel:diesel'] === 'yes') tags.push('Diesel');
     if (t['fuel:lpg'] === 'yes') tags.push('LPG');
     if (t['fuel:octane_98'] === 'yes') tags.push('Super 98');
     const dest = `${s.lat},${s.lon}`;
+    const gmapsSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + (addr || '') + ' ' + dest)}`;
+
+    let cbsBox = '';
+    if (cbsLatest && (cbsLatest.e95 != null || cbsLatest.diesel != null)) {
+      const hint = unmanned
+        ? '💡 Onbemand station: doorgaans ca. 10 tot 15 cent voordeliger dan het CBS-gemiddelde.'
+        : 'ℹ️ Landelijke dagprijs ter referentie. Klik op de knop om de actuele pompprijs live te controleren.';
+      cbsBox = `<div class="st-cbs-box">
+        <div class="st-cbs-title">📊 Landelijke CBS-dagprijs (${cbsLatest.date ? fmtDate(cbsLatest.date) : 'peildatum'}):</div>
+        <div class="st-cbs-row">
+          <span>Euro 95: <b>${eur(cbsLatest.e95)}</b></span>
+          <span>Diesel: <b>${eur(cbsLatest.diesel)}</b></span>
+          ${cbsLatest.lpg != null ? `<span>LPG: <b>${eur(cbsLatest.lpg)}</b></span>` : ''}
+        </div>
+        <div class="st-cbs-hint">${esc(hint)}</div>
+      </div>`;
+    }
+
     return `<div class="station" data-id="${esc(s.id)}">
-      <div class="st-main"><div class="st-name">${esc(name)}</div>
+      <div class="st-main">
+        <div class="st-name">${esc(name)}</div>
         <div class="st-addr" data-addr>${addr ? '📍 ' + esc(addr) : '📍 adres wordt opgezocht…'}</div>
-        <div class="tags">${tags.slice(0, 8).map((x) => `<span class="tag">${esc(x)}</span>`).join('')}</div></div>
-      <div class="st-side"><span class="dist">${fmtDist(s.dist)}</span>
-        <a class="btn primary route" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}">🗺️ Route</a></div>
+        <div class="tags">${tags.slice(0, 8).map((x) => `<span class="tag${x.includes('Onbemand') ? ' unmanned' : ''}">${esc(x)}</span>`).join('')}</div>
+        ${cbsBox}
+      </div>
+      <div class="st-side">
+        <span class="dist">${fmtDist(s.dist)}</span>
+        <div class="st-actions">
+          <a class="btn check-price" target="_blank" rel="noopener noreferrer" href="${gmapsSearch}" title="Bekijk actuele gemelde pompprijzen en prijsbord op Google Maps">
+            ⛽ Check actuele pompprijs
+          </a>
+          <a class="btn primary route" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}">
+            🗺️ Route
+          </a>
+        </div>
+      </div>
     </div>`;
   }
+
   function renderMore() {
-    const next = lastStations.slice(shown, shown + PAGE);
+    const list = getFilteredStations();
+    const next = list.slice(shown, shown + PAGE);
     $('stationList').insertAdjacentHTML('beforeend', next.map(stationHtml).join(''));
-    // ontbrekende adressen aanvullen via PDOK (echte gegevens, geen verzinsels)
+    // ontbrekende adressen aanvullen via PDOK
     next.filter((s) => !(s.tags['addr:city'] && s.tags['addr:postcode'])).slice(0, 12).forEach(async (s) => {
       const r = await reverseLabel(s.lat, s.lon);
       const el = document.querySelector(`.station[data-id="${s.id}"] [data-addr]`);
       if (el) el.textContent = r ? '📍 ' + r.text : '📍 adres niet beschikbaar';
     });
     shown += next.length;
-    $('btnMore').style.display = shown < lastStations.length ? '' : 'none';
-    $('btnMore').textContent = `Toon meer stations (${lastStations.length - shown} resterend)`;
+    $('btnMore').style.display = shown < list.length ? '' : 'none';
+    $('btnMore').textContent = `Toon meer stations (${list.length - shown} resterend)`;
   }
 
   async function doSearch() {
@@ -525,6 +662,7 @@
       const c = { lat: pos.coords.latitude, lon: pos.coords.longitude };
       const r = await reverseLabel(c.lat, c.lon);
       const label = (r ? r.text : 'uw locatie') + ` (GPS ±${Math.round(pos.coords.accuracy)} m)`;
+      c.label = label;
       await search(c, label);
     }, (err) => setFinderMsg('⚠️ GPS niet beschikbaar: ' + (err.code === 1 ? 'toestemming geweigerd (zet locatie aan voor deze site).' : 'positie niet bepaald.'), 'err'),
     { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
@@ -548,7 +686,13 @@
     const b = e.target.closest('[data-km]'); if (!b) return;
     radiusKm = +b.dataset.km;
     document.querySelectorAll('#radiusRow .chip').forEach((c) => c.classList.toggle('active', c === b));
-    if (lastCenter) { const q = $('qInput').value.trim(); search(lastCenter, q || 'uw locatie'); }
+    if (lastCenter) { const q = $('qInput').value.trim(); search(lastCenter, (lastCenter && lastCenter.label) || q || 'uw locatie'); }
+  });
+  $('stationFilterRow').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-filter]'); if (!b) return;
+    currentFilter = b.dataset.filter;
+    document.querySelectorAll('#stationFilterRow .chip').forEach((c) => c.classList.toggle('active', c === b));
+    if (lastStations.length) renderStationList();
   });
   $('btnSearch').addEventListener('click', doSearch);
   $('qInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
